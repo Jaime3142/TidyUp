@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="rectangulo">#86C5E0</color>
+    <color name="botbar">#559955</color>
+    <color name="fondo">#FAF3E0</color>
 </resources>

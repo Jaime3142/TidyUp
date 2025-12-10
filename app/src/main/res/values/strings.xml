@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TidyUp</string>
+    <string name="w">Bienvenido a TidyUp</string>
+    <string name="Rec">Recordatorio</string>
+    <string name="Cal">Calendario</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

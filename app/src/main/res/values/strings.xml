@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TidyUp</string>
+    <string name="Calendario">Calendario</string>
+    <string name="Gráfico">Grafico</string>
 </resources>

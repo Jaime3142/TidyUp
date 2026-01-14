@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">TidyUp</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="welcome">¡Bienvenido a TidyUp!</string>
+    <string name="email">Nombre de usuario/Email</string>
+    <string name="password">Contraseña</string>
+    <string name="incorrect_password">Nombre de usuario o contraseña incorrecto</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="outlook">Correo electrónico</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="sign_up">Crear cuenta</string>
+    <string name="login_with">Iniciar sesión con</string>
+
 </resources>

@@ -10,5 +10,12 @@
     <string name="login">Iniciar sesión</string>
     <string name="sign_up">Crear cuenta</string>
     <string name="login_with">Iniciar sesión con</string>
+    <string name="option">Selecciona tu plan</string>
+    <string name="option_1">TidyUp Adolescentes</string>
+    <string name="description_1">Incluye un sistema de recompensas que incita a la realización de tareas</string>
+    <string name="option_2">TidyUp Adultos</string>
+    <string name="description_2">Incluye un calendario en el cual se pueden visualizar las tareas personales de cada integrante</string>
+    <string name="option_3">TidyUp Mayores</string>
+    <string name="description_3">Diseño minimalista que solo dispone de las funciones de calendario y recordatorios </string>
 
 </resources>

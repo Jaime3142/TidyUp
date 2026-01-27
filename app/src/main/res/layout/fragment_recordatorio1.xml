@@ -9,27 +9,27 @@
     tools:context=".Recordatorio1">
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/bcal"
         android:layout_width="333dp"
         android:layout_height="121dp"
         android:layout_marginTop="128dp"
         android:background="@drawable/boton_cuadrado"
         android:backgroundTint="@null"
-        android:text="@string/Cal"
+        android:text="@string/cal"
         android:textColor="@color/black"
         app:backgroundTint="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/brec" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/brec"
         android:layout_width="333dp"
         android:layout_height="121dp"
         android:layout_marginTop="236dp"
         android:background="@drawable/boton_cuadrado"
         android:backgroundTint="@null"
-        android:text="@string/Rec"
+        android:text="@string/rec"
         android:textColor="@color/black"
         app:backgroundTint="@null"
         app:layout_constraintEnd_toEndOf="parent"

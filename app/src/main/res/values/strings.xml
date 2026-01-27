@@ -1,11 +1,16 @@
 <resources>
     <string name="app_name">TidyUp</string>
     <string name="w">Bienvenido a TidyUp</string>
-    <string name="Rec">Recordatorio</string>
-    <string name="Cal">Calendario</string>
+    <string name="rec">Recordatorio</string>
+    <string name="cal">Calendario</string>
     <string name="tarea">Tarea</string>
     <string name="fecha">Fecha</string>
     <string name="realizadacheck">Realizada</string>
+    <string name="tareaNombre">Nombre del recordatorio</string>
+    <string name="desc">Descripcion del recordatorio</string>
+    <string name="creartarea">Crear Recordatorio</string>
+    <string name="nueva">A&#241;adir Nuevo Recordatorio</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -7,17 +7,9 @@
     android:background="@color/fondo"
     tools:context=".MainActivity_Mayores">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:layout_width="411dp"
-        android:layout_height="635dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="414dp"
         android:layout_height="96dp"
         android:background="@color/botbar"
@@ -42,5 +34,15 @@
             android:background="@color/botbar"
             app:srcCompat="@drawable/settings" />
     </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="com.example.tidyup.Recordatorio1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

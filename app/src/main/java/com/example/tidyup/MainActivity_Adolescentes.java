@@ -9,24 +9,46 @@ import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 public class MainActivity_Adolescentes extends AppCompatActivity {
 
     public FragmentContainerView fragmentContiner;
 
-    public Button botonNotificaciones;
+    public ImageButton botonNotificaciones;
+    public ImageButton botonRecompensas;
+    public ImageButton botonTareas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_adolescentes);
 
-        botonNotificaciones.findViewById(R.id.botonNotifi);
+        botonNotificaciones=findViewById(R.id.botonNotificaciones);
+        botonRecompensas=findViewById(R.id.botonRecompensas);
+        botonTareas=findViewById(R.id.botonTareas);
 
+        // paso de pantalla de notificaciones
         botonNotificaciones.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 reemplazarFragment(new Fragment_notificaciones());
+            }
+        });
+
+        // paso de pantalla tareas
+        botonTareas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reemplazarFragment(new fragment_Tareas());
+            }
+        });
+
+        //paso de pantalla recompensas
+        botonRecompensas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reemplazarFragment(new fragment_recompensas());
             }
         });
 
@@ -35,11 +57,8 @@ public class MainActivity_Adolescentes extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        // Reemplazamos el contenido del contenedor con el nuevo fragmento
-        fragmentTransaction.replace(R.id.fragmentContiner, new Fragment_vacio());
-
-        // (Opcional) Guardar en el historial para volver atrás con el botón físico
-        fragmentTransaction.addToBackStack(null);
+        // Reemplazo el contenido del contenedor con el nuevo fragmento
+        fragmentTransaction.replace(R.id.fragmentContiner, fragment);
 
         fragmentTransaction.commit();
     }

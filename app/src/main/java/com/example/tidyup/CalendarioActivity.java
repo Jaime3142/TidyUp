@@ -74,7 +74,7 @@ public class CalendarioActivity extends AppCompatActivity {
 
             listaDeTareas.clear();
 
-            // Simulación: Llenamos la lista con MUCHAS tareas para ver el scroll
+
             if (dayOfMonth % 2 == 0) {
                 for (int i = 1; i <= 15; i++) {
                     listaDeTareas.add(new Tarea("Día Par - Tarea " + i, (8 + i) + ":00"));
@@ -86,7 +86,7 @@ public class CalendarioActivity extends AppCompatActivity {
             }
 
             adapter.notifyDataSetChanged();
-            // Opcional: Volver al principio de la lista al cambiar de día
+
             listViewTasks.setSelection(0);
         });
     }

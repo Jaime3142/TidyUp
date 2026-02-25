@@ -1,31 +1,28 @@
 package com.example.tidyup;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 public class PantallaPrincipal extends AppCompatActivity {
-
-    private CardView cardCalendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 1. Encontramos la tarjeta del calendario
-        cardCalendar = findViewById(R.id.cardCalendar);
+        // 1. Enlazamos los CardViews del XML con variables en Java
+        CardView cardCalendar = findViewById(R.id.cardCalendar);
 
-        // 2. Le ponemos un evento de clic
+        // 2. Le decimos qué hacer cuando se hace clic en "Calendario"
         cardCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // INTENT: Viajar de PantallaPrincipal a CalendarioActivity
+                // Abre la pantalla del Calendario usando tu clase CalendarioActivity
                 Intent intent = new Intent(PantallaPrincipal.this, CalendarioActivity.class);
                 startActivity(intent);
             }
         });
-    }
-}
+    }}

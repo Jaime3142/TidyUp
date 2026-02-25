@@ -13,4 +13,32 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="welcome">¡Bienvenido a TidyUp!</string>
+    <string name="email">Nombre de usuario/Email</string>
+    <string name="password">Contraseña</string>
+    <string name="incorrect_password">Nombre de usuario o contraseña incorrecto</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="outlook">Correo electrónico</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="sign_up">Crear cuenta</string>
+    <string name="login_with">Iniciar sesión con</string>
+    <string name="option">Selecciona tu plan</string>
+    <string name="option_1">TidyUp Adolescentes</string>
+    <string name="description_1">Incluye un sistema de recompensas que incita a la realización de tareas</string>
+    <string name="option_2">TidyUp Adultos</string>
+    <string name="description_2">Incluye un calendario en el cual se pueden visualizar las tareas personales de cada integrante</string>
+    <string name="option_3">TidyUp Mayores</string>
+    <string name="description_3">Diseño minimalista que solo dispone de las funciones de calendario y recordatorios </string>
+    <string name="configuration"><u>Configuración</u></string>
+    <string name="privacy">Políticas de privacidad</string>
+    <string name="theme">Cambiar tema</string>
+    <string name="help">Ayuda y asistencia</string>
+    <string name="consent">Gestionar consentimiento</string>
+    <string name="service">Condiciones de servicio</string>
+    <string name="guide">Guía</string>
+    <string name="plus">+</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

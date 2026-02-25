@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "860011559571",
+    "project_id": "tidyup-44d46",
+    "storage_bucket": "tidyup-44d46.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860011559571:android:f54f38c135221fbfe1ab66",
+        "android_client_info": {
+          "package_name": "com.example.tidyup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBO_nTHYKplTij5cQqWloi08V8neToxI_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

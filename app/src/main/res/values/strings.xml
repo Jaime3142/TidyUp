@@ -41,4 +41,30 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="boton_añadir_tarea">Añadir tarea</string>
+
+// activity principal
+
+    <string name="titutoUsuario">Usuario</string>
+
+// fragment tareas
+    <string name="tituloTareas">Tareas</string>
+    <string name="datoTitulo">Titulo</string>
+    <string name="datoNombre">Nombre</string>
+    <string name="datoPuntos">Puntos</string>
+    <string name="datoRealizafa">Realizada</string>
+
+// fragment notificaciones
+    <string name="tituloNotificaciones">Notificaciones</string>
+
+// fragment recompensas
+    <string name="tituloRecompensas">Recompensas</string>
+    <string name="textoTidypoints">Tidypoints:</string>
+    <string name="datoRecompensa">Recompensa:</string>
+    <string name="datoPrecio">Precio:</string>
+    <string name="datoSeleccion">Seleccion:</string>
+
 </resources>

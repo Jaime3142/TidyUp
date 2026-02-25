@@ -67,4 +67,6 @@
     <string name="datoPrecio">Precio:</string>
     <string name="datoSeleccion">Seleccion:</string>
 
+    <string name="Calendario">Calendario</string>
+    <string name="Gráfico">Grafico</string>
 </resources>

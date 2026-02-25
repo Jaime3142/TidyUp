@@ -13,6 +13,9 @@
         android:theme="@style/Theme.TidyUp"
         tools:targetApi="31" >
         <activity
+<<<<<<< HEAD
+            android:name=".PantallaPrincipal"
+=======
             android:name=".MainActivity_Mayores"
             android:exported="true">
         <intent-filter>
@@ -41,6 +44,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+>>>>>>> deef6f53e5c55d0c7b5b5a5986426f7f42a46c4d
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

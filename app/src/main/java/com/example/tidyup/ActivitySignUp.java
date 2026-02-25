@@ -21,7 +21,7 @@ public class ActivitySignUp extends AppCompatActivity {
     private EditText etUsername, etEmail, etPassword;
     private Button btnRegister;
 
-    // 1. Declarar FirebaseAuth
+    // Declarar FirebaseAuth
     private FirebaseAuth mAuth;
     private static final String TAG = "ActivitySignUp";
 
@@ -30,7 +30,7 @@ public class ActivitySignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // 2. Inicializar FirebaseAuth
+        // Inicializar FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
 
         etUsername = findViewById(R.id.editTextTextUsername);
@@ -50,7 +50,7 @@ public class ActivitySignUp extends AppCompatActivity {
                 } else if (pass.length() < 6) {
                     Toast.makeText(ActivitySignUp.this, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show();
                 } else {
-                    // 3. Llamar al método de registro de Firebase
+                    // Llamar al método de registro de Firebase
                     registrarUsuario(email, pass);
                 }
             }
@@ -67,11 +67,9 @@ public class ActivitySignUp extends AppCompatActivity {
                             Log.d(TAG, "createUserWithEmail:success");
                             Toast.makeText(ActivitySignUp.this, "Cuenta creada con éxito", Toast.LENGTH_SHORT).show();
 
-                            // Opcional: Podrías guardar el 'username' en la base de datos aquí
-
                             irALogin();
                         } else {
-                            // Si falla el registro (ej: email mal formado o ya registrado)
+                            // Si falla el registro
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(ActivitySignUp.this, "Error: " + task.getException().getMessage(),
                                     Toast.LENGTH_LONG).show();

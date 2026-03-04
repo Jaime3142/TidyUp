@@ -1,8 +1,6 @@
 package com.example.tidyup;
 
-import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -10,14 +8,14 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link fragment_Tareas#newInstance} factory method to
+ * Use the {@link Fragment_CrearTAdolescentes#newInstance} factory method to
  * create an instance of this fragment.
+ *
  */
-public class fragment_Tareas extends Fragment {
+public class Fragment_CrearTAdolescentes extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,23 +26,17 @@ public class fragment_Tareas extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private Button agregarTarea;
-
-    public fragment_Tareas() {
-        // Required empty public constructor
-    }
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment fragment_Tareas.
+     * @return A new instance of fragment Fragment_CrearTAdolescentes.
      */
     // TODO: Rename and change types and number of parameters
-    public static fragment_Tareas newInstance(String param1, String param2) {
-        fragment_Tareas fragment = new fragment_Tareas();
+    public static Fragment_CrearTAdolescentes newInstance(String param1, String param2) {
+        Fragment_CrearTAdolescentes fragment = new Fragment_CrearTAdolescentes();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -52,53 +44,32 @@ public class fragment_Tareas extends Fragment {
         return fragment;
     }
 
+    public Fragment_CrearTAdolescentes() {
+        // Required empty public constructor
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-
-
-
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        // 1. Inflamos la vista primero
-        View rootView = inflater.inflate(R.layout.fragment__tareas, container, false);
-
-        // 2. Buscamos el botón DENTRO de rootView
-        agregarTarea = rootView.findViewById(R.id.AgregarTarea);
-
-        // 3. Configuramos el click aquí mismo
-        if (agregarTarea != null) {
-            agregarTarea.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Llamamos al método para cambiar de fragment
-                    reemplazarFragment(new Fragment_CrearTAdolescentes());
-                }
-            });
-        }
-
-        return rootView;
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment__crear_t_adolescentes, container, false);
     }
+    public void reemplazarFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-    // Método para cambiar de pantalla (Fragment)
-    private void reemplazarFragment(Fragment fragment) {
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContiner, fragment)
-                .addToBackStack(null) // Para poder volver atrás con el botón del móvil
-                .commit();
+        // Reemplazo el contenido del contenedor con el nuevo fragmento
+        fragmentTransaction.replace(R.id.fragmentContiner, fragment);
+
+        fragmentTransaction.commit();
     }
-
 }

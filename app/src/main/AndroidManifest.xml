@@ -12,18 +12,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TidyUp"
         tools:targetApi="31" >
-        <activity
-<<<<<<< HEAD
-            android:name=".PantallaPrincipal"
-=======
-            android:name=".MainActivity_Mayores"
-            android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+        <activity
+            android:name=".ActivityLogin"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity_Mayores"
+            android:exported="false" />
+
+        <activity
+            android:name=".PantallaPrincipal"
+            android:exported="false" />
+
         <activity
             android:name=".ActivityOption"
             android:exported="false" />
@@ -35,26 +41,8 @@
         <activity
             android:name=".MainActivity_Adolescentes"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false"/>
-        <activity    
-            android:name=".ActivityLogin"
-            android:exported="true"
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
->>>>>>> deef6f53e5c55d0c7b5b5a5986426f7f42a46c4d
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
 
     </application>
 

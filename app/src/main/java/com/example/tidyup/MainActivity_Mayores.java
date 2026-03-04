@@ -20,9 +20,9 @@ public class MainActivity_Mayores extends AppCompatActivity {
         setContentView(R.layout.activity_main_mayores);
         fg = findViewById(R.id.fragmentContainerView);
 
-        // --- IMPLEMENTACIÓN DEL BOTÓN HOME ---
-        // 1. Buscamos el botón de la casita (Home)
+
         ImageButton btnHome = findViewById(R.id.imageButton4);
+        ImageButton btnSettings = findViewById(R.id.imageButton5);
 
         // 2. Al hacer clic, usamos TU función reemplazarContainer
         btnHome.setOnClickListener(new View.OnClickListener() {
@@ -32,7 +32,17 @@ public class MainActivity_Mayores extends AppCompatActivity {
                 reemplazarContainer(new Recordatorio1());
             }
         });
-        // ---------------------------------------
+
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reemplazarContainer(new FragmentConfiguration());
+                4
+
+                        
+            }
+        });
+
     }
 
     public void reemplazarContainer(Fragment fragment){

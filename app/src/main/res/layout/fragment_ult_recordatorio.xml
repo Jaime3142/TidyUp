@@ -35,7 +35,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView" />
 
         <EditText
-            android:id="@+id/editTextText2"
+            android:id="@+id/nombre"
             android:layout_width="305dp"
             android:layout_height="51dp"
             android:layout_marginTop="40dp"
@@ -55,10 +55,10 @@
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+            app:layout_constraintTop_toBottomOf="@+id/nombre" />
 
         <EditText
-            android:id="@+id/editTextTextMultiLine2"
+            android:id="@+id/descripcion"
             android:layout_width="300dp"
             android:layout_height="54dp"
             android:layout_marginTop="56dp"
@@ -80,10 +80,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.459"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextMultiLine2" />
+            app:layout_constraintTop_toBottomOf="@+id/descripcion" />
 
         <EditText
-            android:id="@+id/editTextDate2"
+            android:id="@+id/fecha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -95,7 +95,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/crear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -104,7 +104,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.551"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextDate2" />
+            app:layout_constraintTop_toBottomOf="@+id/fecha" />
 
         <ImageButton
             android:id="@+id/imageButton6"

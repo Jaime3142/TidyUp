@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.util.ArrayList;
+
 public class Recordatorio2 extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
@@ -15,7 +17,8 @@ public class Recordatorio2 extends Fragment {
 
     private String mParam1;
     private String mParam2;
-
+    public static ArrayList<String> tareas = new ArrayList<>();
+    public static ArrayList<String> fechas = new ArrayList<>();
     public Recordatorio2() {
         // Constructor vacío obligatorio
     }

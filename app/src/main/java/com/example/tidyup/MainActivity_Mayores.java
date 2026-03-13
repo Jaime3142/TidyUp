@@ -37,7 +37,7 @@ public class MainActivity_Mayores extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 reemplazarContainer(new FragmentConfiguration());
-                
+
 
 
             }

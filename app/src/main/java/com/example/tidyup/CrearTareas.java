@@ -22,10 +22,10 @@ public class CrearTareas extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.crear_tareas);
 
-        etNombreTarea = findViewById(R.id.etNombreTarea);
-        spinnerUsuario = findViewById(R.id.spinnerUsuario);
-        etFecha = findViewById(R.id.etFecha);
-        btnCrear = findViewById(R.id.btnCrear);
+        etNombreTarea = findViewById(R.id.tituloTarea);
+        spinnerUsuario = findViewById(R.id.nUsuario);
+        etFecha = findViewById(R.id.fecha);
+        btnCrear = findViewById(R.id.bCrearT);
 
         // Configurar campo de fecha para que no se abra el teclado
         etFecha.setFocusable(false);

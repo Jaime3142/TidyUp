@@ -2,6 +2,7 @@ package com.example.tidyup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
 import java.util.HashMap;
@@ -28,5 +29,32 @@ public class FirebaseManager {
             // Usamos el listener para avisar a la Activity que ya terminó
         });
     }
+
+
+
+    public static void guardarTarea(String titulo, String usuarioAsignado, String desc, String fecha, OnCompleteListener<DocumentReference> listener) {
+        String uid = mAuth.getCurrentUser().getUid();
+
+        // 1. Buscamos el id_grupo del usuario actual (el que crea la tarea)
+        db.collection("Usuarios").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+            String idGrupo = documentSnapshot.getString("id_grupo");
+
+            // 2. Preparamos el paquete de la tarea
+            Map<String, Object> tarea = new HashMap<>();
+            tarea.put("titulo", titulo);
+            tarea.put("usuarioAsignado", usuarioAsignado); // Ej: "Carlos"
+            tarea.put("descripcion", desc);
+            tarea.put("fechaLimite", fecha);
+            tarea.put("id_grupo", idGrupo); // Vinculamos la tarea al grupo familiar
+            tarea.put("estado", "pendiente");
+            tarea.put("creadaPor", uid);
+
+            // 3. Guardamos en la colección "tareas"
+            db.collection("Tareas").add(tarea).addOnCompleteListener(listener);
+        });
+}
+
+
+
     }
 

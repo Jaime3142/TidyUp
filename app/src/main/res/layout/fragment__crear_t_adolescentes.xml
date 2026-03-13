@@ -9,7 +9,7 @@
     android:padding="24dp">
 
     <EditText
-        android:id="@+id/etNombreTarea"
+        android:id="@+id/tituloTarea"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="4dp"
@@ -34,7 +34,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etNombreTarea" />
+        app:layout_constraintTop_toBottomOf="@id/tituloTarea" />
 
     <TextView
         android:id="@+id/labelFecha2"
@@ -46,7 +46,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etFecha" />
+        app:layout_constraintTop_toBottomOf="@+id/fecha" />
 
     <FrameLayout
         android:id="@+id/containerSpinner"
@@ -58,7 +58,7 @@
         tools:layout_editor_absoluteX="16dp">
 
         <Spinner
-            android:id="@+id/spinnerUsuario"
+            android:id="@+id/nUsuario"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:backgroundTint="#000000"
@@ -66,7 +66,7 @@
     </FrameLayout>
 
     <EditText
-        android:id="@+id/etNombreTarea2"
+        android:id="@+id/descripcionTarea"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="8dp"
@@ -94,7 +94,7 @@
         app:layout_constraintTop_toBottomOf="@+id/containerSpinner" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnCrear"
+        android:id="@+id/bCrearT"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginTop="148dp"
@@ -106,7 +106,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumber" />
+        app:layout_constraintTop_toBottomOf="@+id/cPuntos" />
 
     <TextView
         android:id="@+id/labelTarea"
@@ -129,10 +129,10 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etNombreTarea2" />
+        app:layout_constraintTop_toBottomOf="@+id/descripcionTarea" />
 
     <EditText
-        android:id="@+id/etFecha"
+        android:id="@+id/fecha"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="4dp"
@@ -148,7 +148,7 @@
         tools:layout_editor_absoluteX="16dp" />
 
     <EditText
-        android:id="@+id/editTextNumber"
+        android:id="@+id/cPuntos"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="24dp"

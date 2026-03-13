@@ -77,10 +77,10 @@ public class fragment_Tareas extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment__tareas, container, false);
 
         // 2. Buscamos el botón DENTRO de rootView
-        agregarTarea = rootView.findViewById(R.id.AgregarTarea);
+        agregarTarea = rootView.findViewById(R.id.abrirFormulario);
 
         // 3. Configuramos el click aquí mismo
-        if (agregarTarea != null) {
+
             agregarTarea.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -88,7 +88,7 @@ public class fragment_Tareas extends Fragment {
                     reemplazarFragment(new Fragment_CrearTAdolescentes());
                 }
             });
-        }
+
 
         return rootView;
     }

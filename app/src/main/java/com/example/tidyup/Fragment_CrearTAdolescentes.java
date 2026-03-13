@@ -8,6 +8,12 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +31,14 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private EditText titulo;
+    private Spinner usuario;
+    private EditText descripcion;
+    private EditText fecha;
+    private EditText puntos;
+
+    private Button botonGuardar;
 
     /**
      * Use this factory method to create a new instance of
@@ -60,9 +74,67 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment__crear_t_adolescentes, container, false);
+
+        // 1. SOLO UN INFLATE: Guardamos la vista en una variable
+
+        View miVista = inflater.inflate(R.layout.fragment__crear_t_adolescentes, container, false);
+
+        // 2. BUSCAMOS LOS COMPONENTES: Ahora que miVista ya tiene el XML cargado
+            titulo = miVista.findViewById(R.id.tituloTarea);
+            usuario = miVista.findViewById(R.id.nUsuario);
+            descripcion = miVista.findViewById(R.id.descripcionTarea);
+            fecha = miVista.findViewById(R.id.fecha);
+            puntos = miVista.findViewById(R.id.cPuntos);
+            botonGuardar = miVista.findViewById(R.id.bCrearT);
+
+            botonGuardar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+
+
+
+
+
+
+        // 4. EL ÚNICO RETURN: Al final, devolvemos la vista ya configurada
+        return miVista;
     }
+
+    private void ejecutarGuardado() {
+        // 1. Extraemos el texto de los EditText normales
+        String Ttitulo = titulo.getText().toString().trim();
+        String Tdesc = descripcion.getText().toString().trim();
+        String Tfecha = fecha.getText().toString().trim();
+
+        // 2. CAMBIO AQUÍ: Extraemos el valor seleccionado del Spinner
+        String Tusuario = "";
+        if (usuario.getSelectedItem() != null) {
+            Tusuario = usuario.getSelectedItem().toString();
+        }
+
+        // 3. Validación
+        if (Ttitulo.isEmpty() || Tusuario.isEmpty()) {
+            Toast.makeText(getContext(), "Por favor, rellena los campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 4. Llamamos a tu clase de servicio (FirebaseService)
+        FirebaseManager.guardarTarea(Ttitulo, Tusuario, Tdesc, Tfecha, task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(getContext(), "Tarea creada correctamente", Toast.LENGTH_SHORT).show();
+                reemplazarFragment(new fragment_Tareas());
+            } else {
+                Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+
     public void reemplazarFragment(Fragment fragment) {
         FragmentManager fragmentManager = getParentFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

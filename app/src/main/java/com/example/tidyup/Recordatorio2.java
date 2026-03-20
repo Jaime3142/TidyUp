@@ -54,16 +54,15 @@ public class Recordatorio2 extends Fragment {
         btnNuevoRecordatorio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // AQUÍ DEFINES A QUÉ FRAGMENTO QUIERES IR
-                // Cambia 'FragmentUltRecordatorio' por el nombre real de tu clase de creación
+
                 Fragment siguienteFragmento = new UltRecordatorio();
 
                 FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
 
-                // Reemplaza 'fragment_container' por el ID del contenedor en tu activity_main.xml
+
                 transaction.replace(R.id.fragmentContainerView, siguienteFragmento);
 
-                // Añadir a la pila para poder volver atrás con el botón físico del móvil
+
                 transaction.addToBackStack(null);
 
                 transaction.commit();

@@ -1,6 +1,7 @@
 package com.example.tidyup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FieldValue;
@@ -34,6 +35,33 @@ public class FirebaseManager {
                     .set(Collections.singletonMap("id_grupo", idGrupo), SetOptions.merge())
                     .addOnCompleteListener(listener);
         });
+    }
+
+    public static void crearTarea(String titulo, String descripcion, String fecha, OnCompleteListener<Void> listener) {
+
+        String correo = "jnc0021@alu.medac.es";
+
+        Map<String, Object> nuevaTarea = new HashMap<>();
+        nuevaTarea.put("titulo", titulo);
+        nuevaTarea.put("descripcion", descripcion);
+        nuevaTarea.put("fecha", fecha);
+        nuevaTarea.put("estado", "pendiente");
+        nuevaTarea.put("puntos", 100);
+        nuevaTarea.put("asignada", correo);
+      //  nuevaTarea.put("id_grupo", "VR5NhwotrNRvItHypTqs");
+
+        db.collection("Tareas")
+                .add(nuevaTarea)
+                .addOnSuccessListener(documentReference -> {
+                    if (listener != null) {
+                        listener.onComplete(Tasks.forResult(null)); // ✔ Task exitoso
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onComplete(Tasks.forException(e)); // ✔ Task con error
+                    }
+                });
     }
     }
 

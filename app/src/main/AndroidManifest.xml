@@ -15,19 +15,14 @@
 
         <activity
             android:name=".ActivityLogin"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:exported="true"> <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
 
         <activity
             android:name=".MainActivity_Mayores"
-            android:exported="false" />
-
-        <activity
-            android:name=".PantallaPrincipal"
             android:exported="false" />
 
         <activity
@@ -42,7 +37,14 @@
             android:name=".MainActivity_Adolescentes"
             android:exported="false" />
 
-
+        <activity
+            android:name=".PantallaPrincipal"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
     </application>
 

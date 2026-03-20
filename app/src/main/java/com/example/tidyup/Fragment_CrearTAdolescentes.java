@@ -90,7 +90,7 @@ public class Fragment_CrearTAdolescentes extends Fragment {
             botonGuardar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                        ejecutarGuardado();
                 }
             });
 
@@ -104,25 +104,12 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     }
 
     private void ejecutarGuardado() {
-        // 1. Extraemos el texto de los EditText normales
-        String Ttitulo = titulo.getText().toString().trim();
-        String Tdesc = descripcion.getText().toString().trim();
-        String Tfecha = fecha.getText().toString().trim();
 
-        // 2. CAMBIO AQUÍ: Extraemos el valor seleccionado del Spinner
-        String Tusuario = "";
-        if (usuario.getSelectedItem() != null) {
-            Tusuario = usuario.getSelectedItem().toString();
-        }
 
-        // 3. Validación
-        if (Ttitulo.isEmpty() || Tusuario.isEmpty()) {
-            Toast.makeText(getContext(), "Por favor, rellena los campos", Toast.LENGTH_SHORT).show();
-            return;
-        }
+
 
         // 4. Llamamos a tu clase de servicio (FirebaseService)
-        FirebaseManager.guardarTarea(Ttitulo, Tusuario, Tdesc, Tfecha, task -> {
+        FirebaseManager.guardarTarea("hola", "juan", "hola", "2/2/2022", task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(getContext(), "Tarea creada correctamente", Toast.LENGTH_SHORT).show();
                 reemplazarFragment(new fragment_Tareas());

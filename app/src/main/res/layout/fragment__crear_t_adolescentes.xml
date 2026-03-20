@@ -97,16 +97,17 @@
         android:id="@+id/bCrearT"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="148dp"
         android:background="@drawable/boton_amarillo"
         android:text="Crear Tarea"
         android:textAllCaps="false"
         android:textColor="#000000"
         android:textSize="18sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cPuntos" />
+        app:layout_constraintTop_toBottomOf="@+id/cPuntos"
+        app:layout_constraintVertical_bias="0.218" />
 
     <TextView
         android:id="@+id/labelTarea"

@@ -33,10 +33,10 @@ public class FirebaseManager {
 
 
     public static void guardarTarea(String titulo, String usuarioAsignado, String desc, String fecha, OnCompleteListener<DocumentReference> listener) {
-        String uid = mAuth.getCurrentUser().getUid();
+        String correo = "igf0015@alu.medac.es";
 
         // 1. Buscamos el id_grupo del usuario actual (el que crea la tarea)
-        db.collection("Usuarios").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+        db.collection("Usuarios").document(correo).get().addOnSuccessListener(documentSnapshot -> {
             String idGrupo = documentSnapshot.getString("id_grupo");
 
             // 2. Preparamos el paquete de la tarea
@@ -47,7 +47,7 @@ public class FirebaseManager {
             tarea.put("fechaLimite", fecha);
             tarea.put("id_grupo", idGrupo); // Vinculamos la tarea al grupo familiar
             tarea.put("estado", "pendiente");
-            tarea.put("creadaPor", uid);
+            tarea.put("asignada", correo);
 
             // 3. Guardamos en la colección "tareas"
             db.collection("Tareas").add(tarea).addOnCompleteListener(listener);

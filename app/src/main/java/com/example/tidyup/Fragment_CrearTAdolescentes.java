@@ -104,15 +104,45 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     }
 
     private void ejecutarGuardado() {
+        // 1. Verificamos que las vistas no sean nulas antes de usarlas
+        if (titulo == null || usuario == null || descripcion == null || fecha == null || puntos == null) {
+            Toast.makeText(getContext(), "Error interno: Vistas no encontradas", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        // 2. Extraemos los textos con seguridad
+        String txttitulo = titulo.getText().toString().trim();
+        String txtdesc = descripcion.getText().toString().trim();
+        String txtfecha = fecha.getText().toString().trim();
+        String txtpuntos = puntos.getText().toString().trim();
 
+        // 3. SEGURIDAD PARA EL SPINNER (Aquí es donde solía petar)
+        String txtusuario = "";
+        if (usuario.getSelectedItem() != null) {
+            txtusuario = usuario.getSelectedItem().toString();
+        } else {
+            txtusuario = "Sin asignar"; // Valor por defecto si no hay nada seleccionado
+        }
 
+        if (txtpuntos.isEmpty()) txtpuntos = "0";
 
-        // 4. Llamamos a tu clase de servicio (FirebaseService)
-        FirebaseManager.guardarTarea("hola", "juan", "hola", "2/2/2022", task -> {
+        // 4. Validación rápida: No dejar guardar si el título está vacío
+        if (txttitulo.isEmpty()) {
+            titulo.setError("El título es obligatorio");
+            return;
+        }
+
+        // 5. Llamada al Manager
+        FirebaseManager.guardarTarea(txttitulo, txtusuario, txtdesc, txtfecha, txtpuntos, task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(getContext(), "Tarea creada correctamente", Toast.LENGTH_SHORT).show();
-                reemplazarFragment(new fragment_Tareas());
+                Toast.makeText(getContext(), "Tarea guardada", Toast.LENGTH_SHORT).show();
+
+                // Volvemos atrás de forma segura
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else {
+                    reemplazarFragment(new fragment_Tareas());
+                }
             } else {
                 Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }

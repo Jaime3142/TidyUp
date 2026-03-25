@@ -23,26 +23,14 @@
         </activity>
 
         <activity
-            android:name=".MainActivity_Mayores"
+            android:name=".ActivityTest"
             android:exported="false" />
 
-        <activity
-            android:name=".PantallaPrincipal"
-            android:exported="false" />
-
-        <activity
-            android:name=".ActivityOption"
-            android:exported="false" />
-
-        <activity
-            android:name=".ActivitySignUp"
-            android:exported="false" />
-
-        <activity
-            android:name=".MainActivity_Adolescentes"
-            android:exported="false" />
-
-
+        <activity android:name=".MainActivity_Mayores" android:exported="false" />
+        <activity android:name=".PantallaPrincipal" android:exported="false" />
+        <activity android:name=".ActivityOption" android:exported="false" />
+        <activity android:name=".ActivitySignUp" android:exported="false" />
+        <activity android:name=".MainActivity_Adolescentes" android:exported="false" />
 
     </application>
 

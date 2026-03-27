@@ -8,7 +8,6 @@ import android.widget.Button;
 
 public class ActivityOption extends AppCompatActivity {
 
-    // Cambiamos el nombre de la variable para que sea más claro (opcional, pero buena práctica)
     private Button botonDos;
 
     @Override
@@ -16,19 +15,18 @@ public class ActivityOption extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_option);
 
-        // 1. Buscamos el SEGUNDO botón en el XML por su ID (R.id.button2)
+        // 1. Buscamos el SEGUNDO botón en el XML por su ID
         botonDos = findViewById(R.id.button2);
 
-        // 2. Le añadimos el OnClickListener al segundo botón
+        // Busca esta parte en tu ActivityOption.java
         botonDos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // 3. Creamos la intención de ir a PantallaPrincipal
-                Intent intent = new Intent(ActivityOption.this, PantallaPrincipal.class);
-
-                // 4. Arrancamos la nueva pantalla
+                // EL CAMBIO ESTÁ AQUÍ:
+                // Asegúrate de que dice MainActivity.class y NO MainActivity_Adultos.class
+                Intent intent = new Intent(ActivityOption.this, MainActivity_Adultos.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

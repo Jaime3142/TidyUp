@@ -10,7 +10,6 @@ public class ActivityTest extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        // Cargamos tu FragmentGroups en el contenedor vacío
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.contenedor_pruebas, new FragmentGroups())

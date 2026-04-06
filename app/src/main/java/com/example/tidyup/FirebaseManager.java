@@ -4,7 +4,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue; // ¡Nueva importación vital!
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -17,19 +17,16 @@ public class FirebaseManager {
     private static final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    // -- 1. AUTH & USUARIOS --
-
+    // Autenticación y usuarios
     public static String getCurrentUserUid() {
         if (mAuth.getCurrentUser() != null) {
             return mAuth.getCurrentUser().getUid();
         }
         return "";
     }
-
     public static Task<AuthResult> registrarUsuarioAuth(String email, String password) {
         return mAuth.createUserWithEmailAndPassword(email, password);
     }
-
     public static Task<Void> crearPerfilUsuario(String uid, String nombre, String email) {
         Map<String, Object> datosUsuario = new HashMap<>();
         datosUsuario.put("nombre", nombre);
@@ -39,13 +36,12 @@ public class FirebaseManager {
 
         return db.collection("Usuarios").document(uid).set(datosUsuario);
     }
-
     public static Task<Void> actualizarRolUsuario(String nuevoRol) {
         String uid = getCurrentUserUid();
         return db.collection("Usuarios").document(uid).update("rol", nuevoRol);
     }
 
-    // -- 2. GRUPOS --
+    // Gestión de grupos
 
     public static Task<Void> crearGrupo(String nombreGrupo, String codigoAcceso, List<String> miembrosUids) {
         String miUid = getCurrentUserUid();
@@ -64,10 +60,7 @@ public class FirebaseManager {
 
         return db.collection("Grupos").document(idNuevoGrupo).set(datosGrupo);
     }
-
-    // NUEVO: Método para añadir nuevos UIDs al array de miembros de un grupo existente
     public static Task<Void> anadirMiembrosAGrupo(String idGrupo, List<String> nuevosUids) {
-        // arrayUnion mete los nuevos elementos sin borrar los que ya estaban
         return db.collection("Grupos").document(idGrupo)
                 .update("miembros", FieldValue.arrayUnion(nuevosUids.toArray()));
     }
@@ -91,9 +84,12 @@ public class FirebaseManager {
                 .update("miembros", FieldValue.arrayRemove(uidMiembro));
     }
 
-    // NUEVO: Método para eliminar un grupo por completo de la base de datos
     public static Task<Void> eliminarGrupo(String idGrupo) {
         return db.collection("Grupos").document(idGrupo).delete();
+    }
+
+    public static void cerrarSesion() {
+        mAuth.signOut();
     }
 }
 

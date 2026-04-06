@@ -75,13 +75,13 @@ public class FragmentGroups extends Fragment {
 
                 btnNombreGrupo.setText(nombreGrupo);
 
-                // --- 1. LÓGICA DE PULSACIÓN LARGA (OPCIONES DE GRUPO) ---
+                // Al mantener pulsado el botón del grupo nos saldrán las opciones
                 btnNombreGrupo.setOnLongClickListener(v -> {
                     mostrarOpcionesDeGrupo(idGrupo, nombreGrupo, adminId, codigoAcceso);
                     return true;
                 });
 
-                // --- 2. LÓGICA DE AÑADIR MIEMBRO (PROTEGIDA POR CÓDIGO) ---
+                // Al pulsar el botón de +, nos pedirá un código
                 btnAnadirMiembro.setOnClickListener(v -> {
                     String miUid = FirebaseManager.getCurrentUserUid();
                     if (miUid.equals(adminId)) {
@@ -93,7 +93,7 @@ public class FragmentGroups extends Fragment {
                     }
                 });
 
-                // Pasamos adminId y codigoAcceso para proteger la eliminación individual
+                // Protección para poder eliminar de forma individual
                 cargarIntegrantesEnPantalla(idGrupo, miembrosUids, contenedorMiembros, adminId, codigoAcceso);
 
                 contenedorDinamicoGrupos.addView(vistaGrupo);
@@ -101,7 +101,7 @@ public class FragmentGroups extends Fragment {
         }).addOnFailureListener(e -> Log.e("TIDYUP", "Error al cargar grupos", e));
     }
 
-    // --- EL GUARDIA DE SEGURIDAD (MÉTODO NUEVO) ---
+    // Verificación de código
     private void verificarCodigoAcceso(String codigoReal, Runnable accionPermitida) {
         final EditText inputCodigo = new EditText(getContext());
         inputCodigo.setHint("Escribe el código del grupo");
@@ -126,12 +126,10 @@ public class FragmentGroups extends Fragment {
                 .show();
     }
 
-    // --- OPCIONES GLOBALES DEL GRUPO ---
     private void mostrarOpcionesDeGrupo(String idGrupo, String nombreGrupo, String adminId, String codigoAcceso) {
         String miUid = FirebaseManager.getCurrentUserUid();
 
         if (miUid.equals(adminId)) {
-            // Eres el creador (Admin absoluto)
             new AlertDialog.Builder(getContext())
                     .setTitle("Opciones de Admin")
                     .setMessage("Eres el administrador del grupo '" + nombreGrupo + "'.")
@@ -142,7 +140,7 @@ public class FragmentGroups extends Fragment {
                     .setNegativeButton("Cancelar", null)
                     .show();
         } else {
-            // No eres el creador
+
             new AlertDialog.Builder(getContext())
                     .setTitle("Opciones del Grupo")
                     .setMessage("¿Qué deseas hacer con '" + nombreGrupo + "'?")
@@ -151,9 +149,7 @@ public class FragmentGroups extends Fragment {
                         Toast.makeText(getContext(), "Has salido del grupo", Toast.LENGTH_SHORT).show();
                     })
                     .setNeutralButton("Opciones Avanzadas", (dialog, which) -> {
-                        // Le pedimos el código si intenta hacer de admin
                         verificarCodigoAcceso(codigoAcceso, () -> {
-                            // Si acierta, le dejamos eliminar el grupo entero
                             new AlertDialog.Builder(getContext())
                                     .setTitle("Código Verificado")
                                     .setMessage("¿Seguro que quieres destruir este grupo para todos?")
@@ -169,7 +165,6 @@ public class FragmentGroups extends Fragment {
         }
     }
 
-    // --- MOSTRAR LOS INTEGRANTES (PROTEGIENDO EL CLIC) ---
     private void cargarIntegrantesEnPantalla(String idDelGrupo, List<String> miembrosUids, LinearLayout contenedor, String adminId, String codigoAcceso) {
         contenedor.removeAllViews();
         if (miembrosUids == null) return;
@@ -189,16 +184,12 @@ public class FragmentGroups extends Fragment {
                     tvMiembro.setTypeface(null, Typeface.BOLD);
                     tvMiembro.setPadding(20, 10, 0, 10);
 
-                    // LÓGICA DE CLIC EN EL INTEGRANTE
                     tvMiembro.setOnClickListener(v -> {
                         if (uid.equals(miUid)) {
-                            // Si toca sobre su propio nombre, puede salir sin pedir código
                             mostrarDialogoEliminar(idDelGrupo, uid, nombre, miUid);
                         } else if (miUid.equals(adminId)) {
-                            // Si eres el admin y tocas a otro, lo echas sin código
                             mostrarDialogoEliminar(idDelGrupo, uid, nombre, miUid);
                         } else {
-                            // Si eres un miembro normal y quieres echar a otro, te pedimos código
                             verificarCodigoAcceso(codigoAcceso, () -> mostrarDialogoEliminar(idDelGrupo, uid, nombre, miUid));
                         }
                     });

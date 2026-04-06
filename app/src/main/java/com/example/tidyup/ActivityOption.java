@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.TextView; // <-- ¡Nuevo import necesario!
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ActivityOption extends AppCompatActivity {
 
     private Button botonAdultos, botonMayores, accesoAdolescentes;
+    private TextView tvCerrarSesion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,12 +21,13 @@ public class ActivityOption extends AppCompatActivity {
         accesoAdolescentes = findViewById(R.id.button);
         botonAdultos = findViewById(R.id.button2);
         botonMayores = findViewById(R.id.button3);
+        tvCerrarSesion = findViewById(R.id.tvCerrarSesion);
 
         accesoAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", ActivityTest.class));
         botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", ActivityTest.class));
         botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", ActivityTest.class));
 
-        // --- NUEVA LÓGICA DE BIENVENIDA ---
+
         TextView tvBienvenida = findViewById(R.id.tvBienvenidaUsuario);
         String miUid = FirebaseManager.getCurrentUserUid();
 
@@ -39,14 +41,20 @@ public class ActivityOption extends AppCompatActivity {
                 }
             }).addOnFailureListener(e -> Log.e("TIDYUP", "Error al cargar el nombre de usuario", e));
         }
-        // -----------------------------------
+
+        tvCerrarSesion.setOnClickListener(v -> {
+            FirebaseManager.cerrarSesion();
+            Intent intent = new Intent(ActivityOption.this, ActivityLogin.class);
+            startActivity(intent);
+
+            finish();
+
+            Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void actualizarRolYNavegar(String nuevoRol, Class<?> claseDestino) {
-        // Miramos si hay un usuario logueado en el Manager
         if (!FirebaseManager.getCurrentUserUid().isEmpty()) {
-
-            // Le pedimos al Manager que actualice el rol
             FirebaseManager.actualizarRolUsuario(nuevoRol)
                     .addOnSuccessListener(aVoid -> {
                         Intent intent = new Intent(ActivityOption.this, claseDestino);

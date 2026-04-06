@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-// IMPORTS DE FIREBASE (¡Nuevos!)
+// IMPORTS DE FIREBASE
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -29,6 +29,7 @@ public class CrearTareaFragment extends Fragment {
     private Spinner spinnerUsuario;
     private EditText etFecha;
     private EditText etNombreTarea;
+    private EditText etDescripcionTarea; // <-- Nuestro nuevo campo
     private Button btnCrear;
 
     private ArrayAdapter<String> adapter;
@@ -48,7 +49,8 @@ public class CrearTareaFragment extends Fragment {
         // 1. Enlazar XML
         spinnerUsuario = view.findViewById(R.id.spinnerUsuario);
         etFecha = view.findViewById(R.id.etFecha);
-        etNombreTarea = view.findViewById(R.id.etNombreTarea); // Asegúrate de que este ID sea correcto
+        etNombreTarea = view.findViewById(R.id.etNombreTarea);
+        etDescripcionTarea = view.findViewById(R.id.etDescripcionTarea); // <-- Enlazado
         btnCrear = view.findViewById(R.id.btnCrear);
 
         // 2. Preparar el Spinner
@@ -69,7 +71,7 @@ public class CrearTareaFragment extends Fragment {
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                     (view1, year, month, dayOfMonth) -> {
-                        // Formateamos la fecha (ej: "2/2/2027" o lo que elija el usuario)
+                        // Formateamos la fecha (ej: "2/2/2027")
                         String fechaElegida = dayOfMonth + "/" + (month + 1) + "/" + year;
                         etFecha.setText(fechaElegida);
                     }, anio, mes, dia);
@@ -81,13 +83,15 @@ public class CrearTareaFragment extends Fragment {
             String tarea = etNombreTarea.getText().toString().trim();
             String usuarioAsignado = spinnerUsuario.getSelectedItem().toString();
             String fecha = etFecha.getText().toString().trim();
+            String descripcion = etDescripcionTarea.getText().toString().trim(); // <-- Recogemos el texto
 
             if (tarea.isEmpty() || fecha.isEmpty()) {
-                Toast.makeText(getContext(), "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Por favor, rellena los campos principales", Toast.LENGTH_SHORT).show();
             } else if (usuarioAsignado.equals("Cargando usuarios...") || usuarioAsignado.equals("Selecciona usuario...")) {
                 Toast.makeText(getContext(), "Selecciona un usuario válido", Toast.LENGTH_SHORT).show();
             } else {
-                guardarTareaEnFirebase(tarea, usuarioAsignado, fecha);
+                // 🔥 Pasamos los 4 datos (incluida la descripción) a la función
+                guardarTareaEnFirebase(tarea, usuarioAsignado, fecha, descripcion);
             }
         });
 
@@ -103,9 +107,6 @@ public class CrearTareaFragment extends Fragment {
             if (task.isSuccessful()) {
                 // Si la conexión fue bien, leemos todos los documentos de usuarios
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    // Viendo que en "asignada" guardan un email (ej. jnc0021@alu.medac.es),
-                    // asumo que en la colección Usuarios hay un campo llamado "email" o "nombre".
-                    // ¡Ojo! Cambia "email" por la palabra exacta que usen tus compañeros para guardar el nombre/correo en esa colección.
                     String emailUsuario = document.getString("email");
                     if (emailUsuario != null) {
                         listaUsuarios.add(emailUsuario);
@@ -119,15 +120,16 @@ public class CrearTareaFragment extends Fragment {
         });
     }
 
-    private void guardarTareaEnFirebase(String nombreTarea, String usuario, String fecha) {
-        // Creamos un "mapa" con los datos exactos que usan tus compañeros en la BD
+    // 🔥 La función ahora recibe el String de la descripción
+    private void guardarTareaEnFirebase(String nombreTarea, String usuario, String fecha, String descripcion) {
+        // Creamos un "mapa" con los datos exactos
         Map<String, Object> nuevaTarea = new HashMap<>();
         nuevaTarea.put("titulo", nombreTarea);
-        nuevaTarea.put("descripcion", ""); // Lo dejamos en blanco por ahora, o puedes poner nombreTarea
+        nuevaTarea.put("descripcion", descripcion); // 🔥 Guardamos lo que se ha escrito
         nuevaTarea.put("asignada", usuario);
         nuevaTarea.put("fecha", fecha);
-        nuevaTarea.put("estado", "pendiente"); // Por defecto cuando se crea
-        nuevaTarea.put("puntos", 100); // Ponemos 100 por defecto, como en tu ejemplo
+        nuevaTarea.put("estado", "pendiente");
+        nuevaTarea.put("puntos", 100);
 
         // Guardamos en la colección "Tareas"
         db.collection("Tareas")
@@ -136,8 +138,10 @@ public class CrearTareaFragment extends Fragment {
                     // Si sale bien
                     if (getContext() != null) {
                         Toast.makeText(getContext(), "¡Tarea creada con éxito!", Toast.LENGTH_SHORT).show();
-                        // Limpiamos los campos para poder crear otra
+
+                        // 🔥 Limpiamos TODOS los campos para poder crear otra
                         etNombreTarea.setText("");
+                        etDescripcionTarea.setText("");
                         etFecha.setText("");
                         spinnerUsuario.setSelection(0);
                     }

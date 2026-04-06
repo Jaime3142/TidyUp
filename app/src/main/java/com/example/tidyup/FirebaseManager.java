@@ -16,7 +16,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.Collections;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FirebaseManager {
@@ -24,31 +33,83 @@ public class FirebaseManager {
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    // CREAR GRUPO
-    public static void crearGrupo(String nombreGrupo, OnCompleteListener<Void> listener) {
-
-        if (mAuth.getCurrentUser() == null) {
-            if (listener != null) listener.onComplete(null);
-            return;
+    // Autenticación y usuarios
+    public static String getCurrentUserUid() {
+        if (mAuth.getCurrentUser() != null) {
+            return mAuth.getCurrentUser().getUid();
         }
+        return "";
+    }
+    public static Task<AuthResult> registrarUsuarioAuth(String email, String password) {
+        return mAuth.createUserWithEmailAndPassword(email, password);
+    }
+    public static Task<Void> crearPerfilUsuario(String uid, String nombre, String email) {
+        Map<String, Object> datosUsuario = new HashMap<>();
+        datosUsuario.put("nombre", nombre);
+        datosUsuario.put("email", email);
+        datosUsuario.put("rol", "adulto");
+        datosUsuario.put("puntos", 0);
 
-        String uid = mAuth.getCurrentUser().getUid();
-
-        Map<String, Object> grupo = new HashMap<>();
-        grupo.put("nombre", nombreGrupo);
-        grupo.put("admin", uid);
-
-        db.collection("grupos").add(grupo).addOnSuccessListener(docRef -> {
-
-            String idGrupo = docRef.getId();
-
-            db.collection("usuarios").document(uid)
-                    .set(Collections.singletonMap("id_grupo", idGrupo), SetOptions.merge())
-                    .addOnCompleteListener(listener);
-        });
+        return db.collection("Usuarios").document(uid).set(datosUsuario);
+    }
+    public static Task<Void> actualizarRolUsuario(String nuevoRol) {
+        String uid = getCurrentUserUid();
+        return db.collection("Usuarios").document(uid).update("rol", nuevoRol);
     }
 
-    // CREAR TAREA
+    // Gestión de grupos
+
+    public static Task<Void> crearGrupo(String nombreGrupo, String codigoAcceso, List<String> miembrosUids) {
+        String miUid = getCurrentUserUid();
+
+        if (!miembrosUids.contains(miUid)) {
+            miembrosUids.add(miUid);
+        }
+
+        String idNuevoGrupo = db.collection("Grupos").document().getId();
+
+        Map<String, Object> datosGrupo = new HashMap<>();
+        datosGrupo.put("admin_id", miUid);
+        datosGrupo.put("codigoAcceso", codigoAcceso);
+        datosGrupo.put("nombre", nombreGrupo);
+        datosGrupo.put("miembros", miembrosUids);
+
+        return db.collection("Grupos").document(idNuevoGrupo).set(datosGrupo);
+    }
+    public static Task<Void> anadirMiembrosAGrupo(String idGrupo, List<String> nuevosUids) {
+        return db.collection("Grupos").document(idGrupo)
+                .update("miembros", FieldValue.arrayUnion(nuevosUids.toArray()));
+    }
+
+    public static Task<QuerySnapshot> obtenerMisGrupos() {
+        String miUid = getCurrentUserUid();
+        return db.collection("Grupos").whereArrayContains("miembros", miUid).get();
+    }
+
+    public static Task<QuerySnapshot> obtenerTodosLosUsuarios() {
+        return db.collection("Usuarios").get();
+    }
+
+    public static Task<DocumentSnapshot> obtenerUsuarioPorUid(String uid) {
+        return db.collection("Usuarios").document(uid).get();
+    }
+
+    public static Task<Void> eliminarMiembroDeGrupo(String idGrupo, String uidMiembro) {
+        // arrayRemove busca ese UID específico en la lista y lo borra sin tocar a los demás
+        return db.collection("Grupos").document(idGrupo)
+                .update("miembros", FieldValue.arrayRemove(uidMiembro));
+    }
+
+    public static Task<Void> eliminarGrupo(String idGrupo) {
+        return db.collection("Grupos").document(idGrupo).delete();
+    }
+
+    public static void cerrarSesion() {
+        mAuth.signOut();
+    }
+}
+
+// Tareas Mayores
     public static void crearTarea(String titulo, String descripcion, String fecha, OnCompleteListener<Void> listener) {
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -77,7 +138,6 @@ public class FirebaseManager {
                         listener.onComplete(Tasks.forException(e));
                     }
                 });
-    }
 
     //  CARGAR TAREAS EN EL LINEARLAYOUT
     public static void cargarTareasEnContenedor(LinearLayout contenedor,

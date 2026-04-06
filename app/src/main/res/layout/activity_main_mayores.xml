@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/botbar"
-            app:srcCompat="@drawable/home" />
+            app:srcCompat="@drawable/home2" />
 
         <ImageButton
             android:id="@+id/imageButton5"

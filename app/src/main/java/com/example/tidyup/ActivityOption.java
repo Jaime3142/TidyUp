@@ -25,7 +25,7 @@ public class ActivityOption extends AppCompatActivity {
 
         accesoAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", ActivityTest.class));
         botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", ActivityTest.class));
-        botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", ActivityTest.class));
+        botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", MainActivity_Mayores.class));
 
 
         TextView tvBienvenida = findViewById(R.id.tvBienvenidaUsuario);

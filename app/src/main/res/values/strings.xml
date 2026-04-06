@@ -38,8 +38,6 @@
     <string name="service">Condiciones de servicio</string>
     <string name="guide">Guía</string>
     <string name="plus">+</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
     <string name="boton_añadir_tarea">Añadir tarea</string>

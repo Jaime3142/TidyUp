@@ -8,20 +8,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
-
-import java.util.Collections;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
@@ -40,9 +34,11 @@ public class FirebaseManager {
         }
         return "";
     }
+
     public static Task<AuthResult> registrarUsuarioAuth(String email, String password) {
         return mAuth.createUserWithEmailAndPassword(email, password);
     }
+
     public static Task<Void> crearPerfilUsuario(String uid, String nombre, String email) {
         Map<String, Object> datosUsuario = new HashMap<>();
         datosUsuario.put("nombre", nombre);
@@ -52,6 +48,7 @@ public class FirebaseManager {
 
         return db.collection("Usuarios").document(uid).set(datosUsuario);
     }
+
     public static Task<Void> actualizarRolUsuario(String nuevoRol) {
         String uid = getCurrentUserUid();
         return db.collection("Usuarios").document(uid).update("rol", nuevoRol);
@@ -76,6 +73,7 @@ public class FirebaseManager {
 
         return db.collection("Grupos").document(idNuevoGrupo).set(datosGrupo);
     }
+
     public static Task<Void> anadirMiembrosAGrupo(String idGrupo, List<String> nuevosUids) {
         return db.collection("Grupos").document(idGrupo)
                 .update("miembros", FieldValue.arrayUnion(nuevosUids.toArray()));
@@ -107,13 +105,14 @@ public class FirebaseManager {
     public static void cerrarSesion() {
         mAuth.signOut();
     }
-}
 
-// Tareas Mayores
+
+    // Tareas Mayores
     public static void crearTarea(String titulo, String descripcion, String fecha, OnCompleteListener<Void> listener) {
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            if (listener != null) listener.onComplete(Tasks.forException(new Exception("Usuario no logueado")));
+            if (listener != null)
+                listener.onComplete(Tasks.forException(new Exception("Usuario no logueado")));
             return;
         }
 
@@ -138,12 +137,13 @@ public class FirebaseManager {
                         listener.onComplete(Tasks.forException(e));
                     }
                 });
+    }
 
     //  CARGAR TAREAS EN EL LINEARLAYOUT
-    public static void cargarTareasEnContenedor(LinearLayout contenedor,
-                                                LayoutInflater inflater,
-                                                String correoUsuario,
-                                                OnCompleteListener<QuerySnapshot> listener) {
+    public static void cargarTareasEnContenedor (LinearLayout contenedor,
+                                                 LayoutInflater inflater,
+                                                 String correoUsuario,
+                                                 OnCompleteListener < QuerySnapshot > listener){
 
         db.collection("Tareas")
                 .whereEqualTo("asignada", correoUsuario)
@@ -166,7 +166,8 @@ public class FirebaseManager {
                             TextView tvFecha = fila.findViewById(R.id.txtTarea);
                             CheckBox chk = fila.findViewById(R.id.checkBoxT);
 
-                            if (tvNombre != null) tvNombre.setText(titulo != null ? titulo : "");
+                            if (tvNombre != null)
+                                tvNombre.setText(titulo != null ? titulo : "");
                             if (tvFecha != null) tvFecha.setText(fecha != null ? fecha : "");
 
 

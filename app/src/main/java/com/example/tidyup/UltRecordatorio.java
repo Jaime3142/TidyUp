@@ -61,7 +61,7 @@ public class UltRecordatorio extends Fragment {
         etNombre = root.findViewById(R.id.nombre);
         etFecha = root.findViewById(R.id.fecha);
         etDescripcion = root.findViewById(R.id.descripcion);
-        btnCrear = root.findViewById(R.id.crear);
+        btnCrear = root.findViewById(R.id.button2);
 
         // Validación
         if (etNombre == null || etFecha == null || etDescripcion == null || btnCrear == null || btnAtras == null) {
@@ -81,7 +81,7 @@ public class UltRecordatorio extends Fragment {
             }
         });
 
-        // Botón crear tarea
+        // Botón button2 tarea
         btnCrear.setOnClickListener(v -> {
 
             String tarea = etNombre.getText().toString().trim();

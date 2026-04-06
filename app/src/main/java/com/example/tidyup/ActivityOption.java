@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
+import android.widget.TextView; // <-- ¡Nuevo import necesario!
 import android.widget.Toast;
 
 public class ActivityOption extends AppCompatActivity {
@@ -24,6 +24,22 @@ public class ActivityOption extends AppCompatActivity {
         accesoAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", ActivityTest.class));
         botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", ActivityTest.class));
         botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", ActivityTest.class));
+
+        // --- NUEVA LÓGICA DE BIENVENIDA ---
+        TextView tvBienvenida = findViewById(R.id.tvBienvenidaUsuario);
+        String miUid = FirebaseManager.getCurrentUserUid();
+
+        if (!miUid.isEmpty()) {
+            FirebaseManager.obtenerUsuarioPorUid(miUid).addOnSuccessListener(doc -> {
+                if (doc.exists()) {
+                    String nombreUsuario = doc.getString("nombre");
+                    if (nombreUsuario != null) {
+                        tvBienvenida.setText("¡Bienvenido, " + nombreUsuario + "!");
+                    }
+                }
+            }).addOnFailureListener(e -> Log.e("TIDYUP", "Error al cargar el nombre de usuario", e));
+        }
+        // -----------------------------------
     }
 
     private void actualizarRolYNavegar(String nuevoRol, Class<?> claseDestino) {

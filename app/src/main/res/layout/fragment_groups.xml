@@ -1,95 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo"
-    tools:context=".FragmentGroups">
+    android:background="@drawable/fondo">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="305dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/button"
-            android:text="Grupo1"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            app:backgroundTint="@null"
-            app:layout_constraintBottom_toTopOf="@+id/button12"
-            app:layout_constraintEnd_toStartOf="@+id/button11"
-            app:layout_constraintHorizontal_bias="0.421"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.52" />
-
-        <Button
-            android:id="@+id/button11"
-            android:layout_width="56dp"
-            android:layout_height="47dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/button"
-            android:text="@string/plus"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            app:backgroundTint="@null"
-            app:layout_constraintBottom_toTopOf="@+id/button13"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.519" />
-
-        <Button
-            android:id="@+id/button12"
-            android:layout_width="305dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="308dp"
-            android:background="@drawable/button"
-            android:text="Grupo 2"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            app:backgroundTint="@null"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/button13"
-            app:layout_constraintHorizontal_bias="0.347"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/button13"
-            android:layout_width="56dp"
-            android:layout_height="47dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="308dp"
-            android:background="@drawable/button"
-            android:text="@string/plus"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            app:backgroundTint="@null"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:fillViewport="true">
 
         <LinearLayout
-            android:id="@+id/contenedorMiembros1"
-            android:layout_width="305dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/button4"
-            app:layout_constraintStart_toStartOf="@+id/button4" />
+            android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/contenedorMiembros2"
-            android:layout_width="305dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/button12"
-            app:layout_constraintStart_toStartOf="@+id/button12" />
+            <Button
+                android:id="@+id/btnCrearNuevoGrupoCentral"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/button"
+                app:backgroundTint="@null"
+                android:text="CREAR NUEVO GRUPO"
+                android:textStyle="bold"
+                android:textColor="#000000" />
 
+            <LinearLayout
+                android:id="@+id/contenedorDinamicoGrupos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+    </ScrollView>
 </FrameLayout>

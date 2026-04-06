@@ -90,4 +90,10 @@ public class FirebaseManager {
         return db.collection("Grupos").document(idGrupo)
                 .update("miembros", FieldValue.arrayRemove(uidMiembro));
     }
+
+    // NUEVO: Método para eliminar un grupo por completo de la base de datos
+    public static Task<Void> eliminarGrupo(String idGrupo) {
+        return db.collection("Grupos").document(idGrupo).delete();
+    }
 }
+

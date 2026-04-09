@@ -19,6 +19,8 @@ public class MainActivity_Adolescentes extends AppCompatActivity {
     public ImageButton botonRecompensas;
     public ImageButton botonTareas;
 
+    public ImageButton botonGrupos;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +29,7 @@ public class MainActivity_Adolescentes extends AppCompatActivity {
         botonNotificaciones=findViewById(R.id.botonNotificaciones);
         botonRecompensas=findViewById(R.id.botonRecompensas);
         botonTareas=findViewById(R.id.botonTareas);
+        botonGrupos=findViewById(R.id.botonGrupos);
 
         // paso de pantalla de notificaciones
         botonNotificaciones.setOnClickListener(new View.OnClickListener() {
@@ -40,6 +43,7 @@ public class MainActivity_Adolescentes extends AppCompatActivity {
         botonTareas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 reemplazarFragment(new fragment_Tareas());
             }
         });
@@ -51,6 +55,9 @@ public class MainActivity_Adolescentes extends AppCompatActivity {
                 reemplazarFragment(new fragment_recompensas());
             }
         });
+
+
+
 
     }
     public void reemplazarFragment(Fragment fragment) {

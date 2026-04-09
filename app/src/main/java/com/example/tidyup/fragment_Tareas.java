@@ -2,6 +2,8 @@ package com.example.tidyup;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.List;
+
 public class fragment_Tareas extends Fragment {
 
     private Button agregarTarea;
+    FirebaseManager manager = new FirebaseManager();
 
     public fragment_Tareas() { }
 
@@ -24,23 +29,35 @@ public class fragment_Tareas extends Fragment {
         LinearLayout contenedor = rootView.findViewById(R.id.Lista);
         agregarTarea = rootView.findViewById(R.id.abrirFormulario);
 
-        if (agregarTarea != null) {
-            agregarTarea.setOnClickListener(v -> reemplazarFragment(new Fragment_CrearTAdolescentes()));
-        }
+        manager.obtenerCorreosDelGrupoActual(new FirebaseManager.CorreosCallback() {
+            @Override
+            public void onCorreosLoaded(List<String> correos) {
 
-        // Cargar tareas del usuario actual
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            String correoActual = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-
-            FirebaseManager.cargarTareasEnContenedor(contenedor, inflater, correoActual, task -> {
-                if (!task.isSuccessful()) {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Error al cargar tareas", Toast.LENGTH_SHORT).show();
+                manager.cargarTareasDelGrupoEnContenedor(contenedor, inflater, correos, task -> {
+                    if (!task.isSuccessful()) {
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Error al cargar tareas del grupo", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
+            @Override
+            public void onError(Exception e) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error al obtener miembros: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+
+        });
+
+        agregarTarea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reemplazarFragment(new Fragment_CrearTAdolescentes());
+            }
+        });
         return rootView;
     }
 

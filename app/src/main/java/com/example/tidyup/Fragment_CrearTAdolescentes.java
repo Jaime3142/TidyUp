@@ -1,19 +1,27 @@
 package com.example.tidyup;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,12 +41,16 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     private String mParam2;
 
     private EditText titulo;
-    private Spinner usuario;
+    private Spinner spinnerUsuarios;
     private EditText descripcion;
     private EditText fecha;
     private EditText puntos;
 
     private Button botonGuardar;
+
+    List<String> listaNombres = new ArrayList<>();
+
+    FirebaseManager firebaseManager = new FirebaseManager();
 
     /**
      * Use this factory method to create a new instance of
@@ -75,24 +87,76 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // 1. SOLO UN INFLATE: Guardamos la vista en una variable
+        //  Guardamos la vista en una variable
 
         View miVista = inflater.inflate(R.layout.fragment__crear_t_adolescentes, container, false);
 
-        // 2. BUSCAMOS LOS COMPONENTES: Ahora que miVista ya tiene el XML cargado
+        //COMPONENTES
             titulo = miVista.findViewById(R.id.tituloTarea);
-            usuario = miVista.findViewById(R.id.nUsuario);
+            spinnerUsuarios = miVista.findViewById(R.id.nUsuario);
             descripcion = miVista.findViewById(R.id.descripcionTarea);
             fecha = miVista.findViewById(R.id.fecha);
             puntos = miVista.findViewById(R.id.cPuntos);
             botonGuardar = miVista.findViewById(R.id.bCrearT);
+            EditText etFecha = miVista.findViewById(R.id.fecha);
 
-            botonGuardar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+
+
+
+            //boton fecha
+        etFecha.setOnClickListener(v -> {
+            final Calendar c = Calendar.getInstance();
+            int anio = c.get(Calendar.YEAR);
+            int mes = c.get(Calendar.MONTH);
+            int dia = c.get(Calendar.DAY_OF_MONTH);
+
+            // obtener los datos
+            DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+                    (viewPicker, year, monthOfYear, dayOfMonth) -> {
+                        String fecha = String.format("%02d/%02d/%d", dayOfMonth, monthOfYear + 1, year);
+                        etFecha.setText(fecha);
+                    }, anio, mes, dia);
+            datePickerDialog.show();
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, listaNombres);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerUsuarios.setAdapter(adapter);
+
+
+
+
+        firebaseManager.detectarGrupoYListarUsuarios(new FirebaseManager.UsuariosCallback() {
+            @Override
+            public void onUsuariosLoaded(List<String> nombres) {
+                listaNombres.clear();
+                listaNombres.addAll(nombres);
+                adapter.notifyDataSetChanged(); // Esto rellena el Spinner solo
+            }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                        Log.e("FirebaseError", "Error al cargar usuarios: " + e.getMessage());
+                    }
+                });
+
+
+
+
+
+
+
+
+            botonGuardar.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         ejecutarGuardado();
-                }
-            });
+                    }
+                    });
 
 
 
@@ -103,9 +167,10 @@ public class Fragment_CrearTAdolescentes extends Fragment {
         return miVista;
     }
 
+
     private void ejecutarGuardado() {
         // 1. Verificamos que las vistas no sean nulas antes de usarlas
-        if (titulo == null || usuario == null || descripcion == null || fecha == null || puntos == null) {
+        if (titulo == null || spinnerUsuarios == null || descripcion == null || fecha == null || puntos == null) {
             Toast.makeText(getContext(), "Error interno: Vistas no encontradas", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -116,10 +181,11 @@ public class Fragment_CrearTAdolescentes extends Fragment {
         String txtfecha = fecha.getText().toString().trim();
         String txtpuntos = puntos.getText().toString().trim();
 
+
         // 3. SEGURIDAD PARA EL SPINNER (Aquí es donde solía petar)
         String txtusuario = "";
-        if (usuario.getSelectedItem() != null) {
-            txtusuario = usuario.getSelectedItem().toString();
+        if (spinnerUsuarios.getSelectedItem() != null) {
+            txtusuario = spinnerUsuarios.getSelectedItem().toString();
         } else {
             txtusuario = "Sin asignar"; // Valor por defecto si no hay nada seleccionado
         }

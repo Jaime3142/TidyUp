@@ -8,10 +8,14 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FirebaseManager {
@@ -39,55 +43,114 @@ public class FirebaseManager {
         });
     }
 
+    public interface CorreosCallback {
+        void onCorreosLoaded(List<String> correos);
+        void onError(Exception e); // Añadimos error por seguridad
+    }
     // Método para cargar tareas filtradas por el correo del usuario asignado
-    public static void cargarTareasEnContenedor(LinearLayout contenedor, LayoutInflater inflater, String correoUsuario, OnCompleteListener<QuerySnapshot> listener) {
+    public void obtenerCorreosDelGrupoActual(CorreosCallback callback) {
+        String miUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // 1. Consultamos las tareas filtradas por el correo del usuario asignado
+        // Buscamos el grupo donde el usuario actual es miembro
+        db.collection("Grupos")
+                .whereArrayContains("miembros", miUid)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Obtenemos la lista de IDs de los miembros del primer grupo encontrado
+                        List<String> miembrosIds = (List<String>) queryDocumentSnapshots.getDocuments().get(0).get("miembros");
+
+                        if (miembrosIds != null) {
+                            List<String> listaCorreos = new ArrayList<>();
+
+                            for (String id : miembrosIds) {
+                                // Buscamos el email de cada miembro en la colección Usuarios
+                                db.collection("Usuarios").document(id).get()
+                                        .addOnSuccessListener(userDoc -> {
+                                            if (userDoc.exists()) {
+                                                String email = userDoc.getString("email");
+                                                if (email != null) listaCorreos.add(email);
+                                            }
+
+                                            // Cuando hayamos terminado con todos los IDs, devolvemos la lista
+                                            if (listaCorreos.size() == miembrosIds.size()) {
+                                                callback.onCorreosLoaded(listaCorreos);
+                                            }
+                                        });
+                            }
+                        }
+                    } else {
+                        callback.onError(new Exception("No se encontró el grupo"));
+                    }
+                })
+                .addOnFailureListener(callback::onError);
+    }
+    public static void cargarTareasDelGrupoEnContenedor(LinearLayout contenedor, LayoutInflater inflater, List<String> correosGrupo, OnCompleteListener<QuerySnapshot> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 1. Validación: Si no hay correos, limpiamos y salimos
+        if (correosGrupo == null || correosGrupo.isEmpty()) {
+            contenedor.removeAllViews();
+            return;
+        }
+
+        // 2. Consultamos las tareas de todos los miembros del grupo
         db.collection("Tareas")
-                .whereEqualTo("asignada", correoUsuario)
+                .whereIn("asignada", correosGrupo)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Limpiamos el contenedor para evitar duplicados
                         contenedor.removeAllViews();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Extraemos los datos del documento
-                            String idTarea = document.getId(); // El ID único para poder borrarla
+                            // Datos de la tarea
+                            String idTarea = document.getId();
                             String titulo = document.getString("titulo");
-                            String usuario = document.getString("usuarioAsignado");
+                            String correoAsignado = document.getString("asignada");
 
-                            // Extraemos puntos (manejando si es String o Number en Firebase)
                             Object ptsObj = document.get("puntos");
                             String puntos = (ptsObj != null) ? ptsObj.toString() : "0";
 
-                            // 2. Inflamos el diseño de la tarjeta (item_tarea.xml)
+                            // 3. Inflamos la vista de la tarjeta
                             View fila = inflater.inflate(R.layout.item_tarea, null);
 
-                            // Vinculamos los elementos del XML
                             TextView tvNombre = fila.findViewById(R.id.txtNombre);
                             TextView tvTitulo = fila.findViewById(R.id.txtTitulo);
                             TextView tvPuntos = fila.findViewById(R.id.txtPuntos);
                             CheckBox chk = fila.findViewById(R.id.checkTarea);
 
-                            // Seteamos los textos en la tarjeta
-                            if (tvNombre != null) tvNombre.setText(usuario);
+                            // Seteamos lo que ya tenemos
                             if (tvTitulo != null) tvTitulo.setText(titulo);
                             if (tvPuntos != null) tvPuntos.setText(puntos + " pts");
 
-                            // 3. Lógica de Borrado al marcar el CheckBox
+                            // --- LÓGICA PARA MOSTRAR NOMBRE EN VEZ DE CORREO ---
+                            if (correoAsignado != null && tvNombre != null) {
+                                // Buscamos al usuario que tiene ese email
+                                db.collection("Usuarios")
+                                        .whereEqualTo("email", correoAsignado)
+                                        .get()
+                                        .addOnSuccessListener(userSnap -> {
+                                            if (!userSnap.isEmpty()) {
+                                                // Si lo encuentra, ponemos su nombre real
+                                                String nombreReal = userSnap.getDocuments().get(0).getString("nombre");
+                                                tvNombre.setText(nombreReal);
+                                            } else {
+                                                // Si no lo encuentra, dejamos el correo para no dejarlo vacío
+                                                tvNombre.setText(correoAsignado);
+                                            }
+                                        });
+                            }
+
+                            // 4. Lógica de borrado (Check)
                             if (chk != null) {
                                 chk.setOnClickListener(v -> {
-                                    // Llamamos al borrado en Firebase usando el ID del documento
                                     db.collection("Tareas").document(idTarea).delete()
                                             .addOnSuccessListener(aVoid -> {
-                                                // Si se borra en la nube, la quitamos de la pantalla
                                                 contenedor.removeView(fila);
                                                 android.widget.Toast.makeText(fila.getContext(),
                                                         "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
                                             })
                                             .addOnFailureListener(e -> {
-                                                // Por si falla la conexión, desmarcamos el check
                                                 chk.setChecked(false);
                                                 android.widget.Toast.makeText(fila.getContext(),
                                                         "Error al borrar", android.widget.Toast.LENGTH_SHORT).show();
@@ -95,11 +158,10 @@ public class FirebaseManager {
                                 });
                             }
 
-                            // Añadimos la tarjeta terminada al LinearLayout de la pantalla
+                            // Añadimos la tarjeta al contenedor
                             contenedor.addView(fila);
                         }
                     }
-                    // Avisamos al Fragment de que el proceso ha terminado
                     listener.onComplete(task);
                 });
     }
@@ -109,4 +171,58 @@ public class FirebaseManager {
                 .delete()
                 .addOnCompleteListener(listener);
     }
+    // interfaz de los datos de la lista de usuarios
+    public interface UsuariosCallback {
+        void onUsuariosLoaded(List<String> nombres);
+        void onError(Exception e);
+    }
+
+
+
+    private void obtenerNombresDeUsuarios(List<String> ids, UsuariosCallback callback) {
+        List<String> listaNombres = new ArrayList<>();
+        final int total = ids.size();
+
+        for (String id : ids) {
+            db.collection("Usuarios").document(id).get()
+                    .addOnSuccessListener(userDoc -> {
+                        if (userDoc.exists()) {
+                            listaNombres.add(userDoc.getString("nombre"));
+                        }
+                        // Solo cuando tenemos todos los nombres, avisamos al Fragment
+                        if (listaNombres.size() == total) {
+                            callback.onUsuariosLoaded(listaNombres);
+                        }
+                    });
+        }
+    }
+    public void detectarGrupoYListarUsuarios(UsuariosCallback callback) {
+        //Obtener mi ID actual
+        String miUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        //Buscar en la colección "Grupos" el documento donde el array "miembros" contiene mi UID
+        db.collection("Grupos")
+                .whereArrayContains("miembros", miUid)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Tomamos el primer grupo encontrado (el documento que vimos en tu captura)
+                        DocumentSnapshot grupoDoc = queryDocumentSnapshots.getDocuments().get(0);
+
+                        //Una vez tenemos el grupo, sacamos la lista de IDs de miembros
+                        List<String> miembrosIds = (List<String>) grupoDoc.get("miembros");
+
+                        if (miembrosIds != null) {
+                            // Reutilizamos tu lógica de buscar nombres por ID
+                            obtenerNombresDeUsuarios(miembrosIds, callback);
+                        }
+                    } else {
+                        callback.onError(new Exception("No perteneces a ningún grupo"));
+                    }
+                })
+                .addOnFailureListener(e -> callback.onError(e));
+    }
+
+
+
 }

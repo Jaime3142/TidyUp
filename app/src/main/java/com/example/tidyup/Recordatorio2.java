@@ -7,6 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
 
 public class Recordatorio2 extends Fragment {
 
@@ -15,6 +21,8 @@ public class Recordatorio2 extends Fragment {
 
     private String mParam1;
     private String mParam2;
+    public static ArrayList<String> tareas = new ArrayList<>();
+    public static ArrayList<String> fechas = new ArrayList<>();
 
     public Recordatorio2() {
         // Constructor vacío obligatorio
@@ -37,35 +45,36 @@ public class Recordatorio2 extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // 1. Inflar el layout para este fragmento
+
         View root = inflater.inflate(R.layout.fragment_recordatorio2, container, false);
 
-        // 2. Referenciar el botón (asegúrate de que el ID sea button4 en tu XML)
+        LinearLayout contenedor = root.findViewById(R.id.Lista);
+
         Button btnNuevoRecordatorio = root.findViewById(R.id.button4);
 
-        // 3. Configurar el evento de clic
-        btnNuevoRecordatorio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // AQUÍ DEFINES A QUÉ FRAGMENTO QUIERES IR
-                // Cambia 'FragmentUltRecordatorio' por el nombre real de tu clase de creación
-                Fragment siguienteFragmento = new UltRecordatorio();
+        btnNuevoRecordatorio.setOnClickListener(v -> {
+            Fragment siguienteFragmento = new UltRecordatorio();
 
-                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-
-                // Reemplaza 'fragment_container' por el ID del contenedor en tu activity_main.xml
-                transaction.replace(R.id.fragmentContainerView, siguienteFragmento);
-
-                // Añadir a la pila para poder volver atrás con el botón físico del móvil
-                transaction.addToBackStack(null);
-
-                transaction.commit();
-            }
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragmentContainerView, siguienteFragmento);
+            transaction.addToBackStack(null);
+            transaction.commit();
         });
+
+        //  CARGAR TAREAS
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+
+            String correoActual = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+            FirebaseManager.cargarTareasEnContenedor(contenedor, inflater, correoActual, task -> {
+                if (!task.isSuccessful() && getContext() != null) {
+                    Toast.makeText(getContext(), "Error al cargar tareas", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         return root;
     }

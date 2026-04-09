@@ -2,80 +2,53 @@ package com.example.tidyup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class ActivitySignUp extends AppCompatActivity {
     private EditText etUsername, etEmail, etPassword;
     private Button btnRegister;
-
-    // Declarar FirebaseAuth
-    private FirebaseAuth mAuth;
-    private static final String TAG = "ActivitySignUp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // Inicializar FirebaseAuth
-        mAuth = FirebaseAuth.getInstance();
-
         etUsername = findViewById(R.id.editTextTextUsername);
         etEmail = findViewById(R.id.editTextTextEmailAddress);
         etPassword = findViewById(R.id.editTextTextPassword);
         btnRegister = findViewById(R.id.buttonSignUp);
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = etUsername.getText().toString().trim();
-                String email = etEmail.getText().toString().trim();
-                String pass = etPassword.getText().toString().trim();
+        btnRegister.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+            String pass = etPassword.getText().toString().trim();
 
-                if (username.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-                    Toast.makeText(ActivitySignUp.this, "Faltan campos por rellenar", Toast.LENGTH_SHORT).show();
-                } else if (pass.length() < 6) {
-                    Toast.makeText(ActivitySignUp.this, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Llamar al método de registro de Firebase
-                    registrarUsuario(email, pass);
-                }
+            if (username.isEmpty() || email.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(ActivitySignUp.this, "Faltan campos", Toast.LENGTH_SHORT).show();
+            } else {
+                registrarUsuario(email, pass, username);
             }
         });
     }
 
-    private void registrarUsuario(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Registro exitoso
-                            Log.d(TAG, "createUserWithEmail:success");
-                            Toast.makeText(ActivitySignUp.this, "Cuenta creada con éxito", Toast.LENGTH_SHORT).show();
+    private void registrarUsuario(String email, String password, final String username) {
+        // Llamamos al Manager para la Auth
+        FirebaseManager.registrarUsuarioAuth(email, password)
+                .addOnSuccessListener(authResult -> {
+                    String uid = authResult.getUser().getUid();
 
-                            irALogin();
-                        } else {
-                            // Si falla el registro
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(ActivitySignUp.this, "Error: " + task.getException().getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                    // Llamamos al Manager para que cree el perfil
+                    FirebaseManager.crearPerfilUsuario(uid, username, email)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getApplicationContext(), "¡Usuario creado correctamente!", Toast.LENGTH_LONG).show();
+                                irALogin();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Error Database: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Fallo Auth: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
     private void irALogin() {

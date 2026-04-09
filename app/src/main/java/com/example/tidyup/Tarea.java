@@ -8,7 +8,7 @@ public class Tarea {
     private String usuario;
     private boolean completada;
 
-    // 2. Constructor (El método que usamos para crear una tarea nueva)
+    // 2. Constructor (El método que usamos para button2 una tarea nueva)
     public Tarea(String nombre, String fechaOHora, String usuario, boolean completada) {
         this.nombre = nombre;
         this.fechaOHora = fechaOHora;

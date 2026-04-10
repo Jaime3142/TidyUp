@@ -25,7 +25,7 @@ public class ActivityOption extends AppCompatActivity {
         tvCerrarSesion = findViewById(R.id.tvCerrarSesion);
 
         accesoAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", MainActivity_Adolescentes.class));
-        botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", ActivityTest.class));
+        botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", MainActivity_Adultos.class));
         botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", MainActivity_Mayores.class));
 
 

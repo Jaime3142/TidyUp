@@ -30,6 +30,7 @@
         <activity android:name=".ActivityOption" android:exported="false" />
         <activity android:name=".ActivitySignUp" android:exported="false" />
         <activity android:name=".MainActivity_Adolescentes" android:exported="false" />
+        <activity android:name=".MainActivity_Adultos" android:exported="false" />
 
     </application>
 

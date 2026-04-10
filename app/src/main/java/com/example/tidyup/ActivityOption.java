@@ -7,13 +7,12 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.View;
 
 public class ActivityOption extends AppCompatActivity {
 
     private Button botonAdultos, botonMayores, accesoAdolescentes;
     private TextView tvCerrarSesion;
-    public Button accesoAdolescentes;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

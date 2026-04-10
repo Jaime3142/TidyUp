@@ -2,41 +2,55 @@ package com.example.tidyup;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.List;
 
-public class fragment_Tareas extends Fragment {
+public class FragmentTarea_Adultos extends Fragment {
 
     private Button agregarTarea;
+    private LinearLayout contenedor;
     FirebaseManager manager = new FirebaseManager();
 
-    public fragment_Tareas() { }
+    // Constructor corregido
+    public FragmentTarea_Adultos() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflamos el XML fragment__tareas
         View rootView = inflater.inflate(R.layout.fragment__tareas, container, false);
 
-        // ID "Lista" debe ser el LinearLayout dentro del ScrollView
-        LinearLayout contenedor = rootView.findViewById(R.id.Lista);
+        // Referencias del XML del fragmento
+        contenedor = rootView.findViewById(R.id.Lista);
         agregarTarea = rootView.findViewById(R.id.abrirFormulario);
 
+        // Carga de tareas desde Firebase
+        cargarTareas(inflater);
+
+        // BOTÓN AGREGAR: Ahora lleva a CrearTareaFragment
+        agregarTarea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // LLAMAMOS AL NUEVO FRAGMENTO
+                reemplazarFragment(new CrearTareaFragment());
+            }
+        });
+
+        return rootView;
+    }
+
+    private void cargarTareas(LayoutInflater inflater) {
         manager.obtenerCorreosDelGrupoActual(new FirebaseManager.CorreosCallback() {
             @Override
             public void onCorreosLoaded(List<String> correos) {
-
                 manager.cargarTareasDelGrupoEnContenedor(contenedor, inflater, correos, task -> {
                     if (!task.isSuccessful()) {
                         if (getContext() != null) {
-                            Toast.makeText(getContext(), "Error al cargar tareas del grupo", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Error al cargar tareas", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -45,23 +59,14 @@ public class fragment_Tareas extends Fragment {
             @Override
             public void onError(Exception e) {
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Error al obtener miembros: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
-
-
         });
-
-        agregarTarea.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                reemplazarFragment(new Fragment_CrearTAdolescentes());
-            }
-        });
-        return rootView;
     }
 
     private void reemplazarFragment(Fragment fragment) {
+        // ID CORREGIDO: Usamos contenedor_fragments que es el que está en tu ActivityMain
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.contenedor_fragments, fragment)
                 .addToBackStack(null)

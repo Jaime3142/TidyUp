@@ -13,7 +13,7 @@ import android.widget.ImageButton;
 
 public class MainActivity_Adolescentes extends AppCompatActivity {
 
-    public FragmentContainerView fragmentContiner;
+    public FragmentContainerView contenedor_fragments;
 
     public ImageButton botonNotificaciones;
     public ImageButton botonRecompensas;
@@ -65,7 +65,7 @@ public class MainActivity_Adolescentes extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         // Reemplazo el contenido del contenedor con el nuevo fragmento
-        fragmentTransaction.replace(R.id.fragmentContiner, fragment);
+        fragmentTransaction.replace(R.id.contenedor_fragments, fragment);
 
         fragmentTransaction.commit();
     }

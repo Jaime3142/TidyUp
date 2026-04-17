@@ -7,6 +7,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+
 public class ActivitySignUp extends AppCompatActivity {
     private EditText etUsername, etEmail, etPassword;
     private Button btnRegister;
@@ -35,20 +38,36 @@ public class ActivitySignUp extends AppCompatActivity {
     }
 
     private void registrarUsuario(String email, String password, final String username) {
-        // Llamamos al Manager para la Auth
+        // 1. Llamamos al Manager
         FirebaseManager.registrarUsuarioAuth(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = authResult.getUser().getUid();
 
-                    // Llamamos al Manager para que cree el perfil
+                    // 2. Si la Auth sale bien, creamos el perfil en la Database
                     FirebaseManager.crearPerfilUsuario(uid, username, email)
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(getApplicationContext(), "¡Usuario creado correctamente!", Toast.LENGTH_LONG).show();
                                 irALogin();
                             })
-                            .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Error Database: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                            .addOnFailureListener(e -> {
+                                // Error al guardar en la base de datos (ej. falta de permisos o internet)
+                                Toast.makeText(getApplicationContext(), "Error Database: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                            });
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Fallo Auth: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                    // gestionamos los errores específicos de Registro (Auth)
+                    String mensajeError = "Error en el registro";
+
+                    if (e instanceof FirebaseAuthWeakPasswordException) {
+                        mensajeError = "La contraseña es muy débil (mínimo 6 caracteres)";
+                    } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                        mensajeError = "El formato del correo es inválido";
+                    } else {
+                        mensajeError = "Este correo ya está registrado";
+                    }
+
+                    Toast.makeText(this, mensajeError, Toast.LENGTH_LONG).show();
+                });
     }
 
     private void irALogin() {

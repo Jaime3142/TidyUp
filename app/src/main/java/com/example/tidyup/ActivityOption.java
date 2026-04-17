@@ -7,13 +7,12 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.View;
 
 public class ActivityOption extends AppCompatActivity {
 
     private Button botonAdultos, botonMayores, accesoAdolescentes;
     private TextView tvCerrarSesion;
-    public Button accesoAdolescentes;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +25,7 @@ public class ActivityOption extends AppCompatActivity {
         tvCerrarSesion = findViewById(R.id.tvCerrarSesion);
 
         accesoAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", MainActivity_Adolescentes.class));
-        botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", ActivityTest.class));
+        botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", MainActivity_Adultos.class));
         botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", MainActivity_Mayores.class));
 
 

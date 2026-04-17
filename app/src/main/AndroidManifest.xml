@@ -15,11 +15,10 @@
 
         <activity
             android:name=".ActivityLogin"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:exported="true"> <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
 
         <activity
@@ -31,6 +30,7 @@
         <activity android:name=".ActivityOption" android:exported="false" />
         <activity android:name=".ActivitySignUp" android:exported="false" />
         <activity android:name=".MainActivity_Adolescentes" android:exported="false" />
+        <activity android:name=".MainActivity_Adultos" android:exported="false" />
 
     </application>
 

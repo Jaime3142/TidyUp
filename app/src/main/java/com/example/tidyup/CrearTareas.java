@@ -20,7 +20,7 @@ public class CrearTareas extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.crear_tareas);
+        setContentView(R.layout.fragment__crear_t_adolescentes);
 
         etNombreTarea = findViewById(R.id.tituloTarea);
         spinnerUsuario = findViewById(R.id.nUsuario);

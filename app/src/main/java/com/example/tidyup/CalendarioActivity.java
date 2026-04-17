@@ -39,14 +39,7 @@ public class CalendarioActivity extends AppCompatActivity {
             }
         });
 
-        // INTENT: Ir a Crear Tareas
-        tvDateSelected.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Intent intent = new Intent(CalendarioActivity.this, CrearTareas.class);
-                startActivity(intent);
-                return true;
-            }
-        });
+
+        ;
     }
 }

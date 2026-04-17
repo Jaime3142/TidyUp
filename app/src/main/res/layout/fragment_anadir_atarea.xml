@@ -33,8 +33,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTitulo" />
 
-        <EditText
-        android:id="@+id/tituloTarea"
+    <EditText
+        android:id="@+id/etNombreTarea"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="8dp"
@@ -58,7 +58,7 @@
         android:textStyle="bold"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tituloTarea" />
+        app:layout_constraintTop_toBottomOf="@id/etNombreTarea" />
 
     <FrameLayout
         android:id="@+id/containerSpinner"
@@ -69,12 +69,39 @@
         app:layout_constraintTop_toBottomOf="@id/labelUsuario">
 
         <Spinner
-            android:id="@+id/nUsuario"
+            android:id="@+id/spinnerUsuario"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="8dp"
-            android:backgroundTint="#000000"/> </FrameLayout>
+            android:backgroundTint="#000000"/>
+    </FrameLayout>
 
+    <TextView
+        android:id="@+id/labelDescripcion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Descripción"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/containerSpinner" />
+
+    <EditText
+        android:id="@+id/etDescripcionTarea"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/fondo_input_blanco"
+        android:hint="Ej: Usar el friegasuelos azul..."
+        android:textColorHint="#757575"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:inputType="textCapSentences"
+        app:layout_constraintTop_toBottomOf="@id/labelDescripcion" />
     <TextView
         android:id="@+id/labelFecha"
         android:layout_width="wrap_content"
@@ -85,25 +112,23 @@
         android:textStyle="bold"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/containerSpinner" />
-
-    <EditText
-        android:id="@+id/fecha"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/fondo_input_blanco"
-        android:clickable="true"
-        android:focusable="false"
-        android:hint="DD/MM/AAAA"
-        android:textColorHint="#757575"
-        android:paddingStart="16dp"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/labelFecha" />
+        app:layout_constraintTop_toBottomOf="@id/etDescripcionTarea" /> <EditText
+    android:id="@+id/etFecha"
+    android:layout_width="match_parent"
+    android:layout_height="55dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/fondo_input_blanco"
+    android:clickable="true"
+    android:focusable="false"
+    android:hint="DD/MM/AAAA"
+    android:textColorHint="#757575"
+    android:paddingStart="16dp"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    app:layout_constraintTop_toBottomOf="@id/labelFecha" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/bCrearT"
+        android:id="@+id/btnCrear"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginTop="40dp"
@@ -113,7 +138,7 @@
         android:textColor="#000000"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/fecha"
+        app:layout_constraintTop_toBottomOf="@id/etFecha"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

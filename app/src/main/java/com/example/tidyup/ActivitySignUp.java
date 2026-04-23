@@ -27,11 +27,37 @@ public class ActivitySignUp extends AppCompatActivity {
             String pass = etPassword.getText().toString().trim();
 
             if (username.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(ActivitySignUp.this, "Faltan campos", Toast.LENGTH_SHORT).show();
-            } else {
+                Toast.makeText(ActivitySignUp.this, "Faltan campos por rellenar", Toast.LENGTH_SHORT).show();
+            }
+            else if (!esPasswordSegura(pass)) {
+                Toast.makeText(ActivitySignUp.this, "La contraseña debe tener mínimo 8 letras, una mayúscula y un carácter especial", Toast.LENGTH_LONG).show();
+            }
+            else {
                 registrarUsuario(email, pass, username);
             }
         });
+    }
+
+    private boolean esPasswordSegura(String password) {
+        if (password.length() < 8) {
+            return false;
+        }
+
+        boolean tieneMayuscula = false;
+        boolean tieneEspecial = false;
+
+        String caracteresEspeciales = "!@#$%^&*()-_=+[]{}|;:',.<>?/`~";
+
+        for (char letra : password.toCharArray()) {
+            if (Character.isUpperCase(letra)) {
+                tieneMayuscula = true;
+            }
+            if (caracteresEspeciales.contains(String.valueOf(letra))) {
+                tieneEspecial = true;
+            }
+        }
+
+        return tieneMayuscula && tieneEspecial;
     }
 
     private void registrarUsuario(String email, String password, final String username) {

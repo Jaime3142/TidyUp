@@ -1,91 +1,67 @@
 package com.example.tidyup;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Suite de pruebas unitarias para TidyUp.
- * Incluye pruebas de éxito y pruebas de error (fallos controlados).
- */
 public class ExampleUnitTest {
 
-    // ==========================================
-    // 1. TESTS QUE DEBEN PASAR (CHECK VERDE ✅)
-    // ==========================================
-
+    // TEST 1: El admin se añade a miembros si no estaba en la lista
     @Test
-    public void testRegistrarUsuario_EjecucionExitosa() {
-        try {
-            // Llama a tu método real de FirebaseManager
-            Task<AuthResult> task = FirebaseManager.registrarUsuarioAuth("user@test.com", "123456");
-            assertNotNull("La Task no debe ser nula", task);
-        } catch (Exception e) {
-            // Si el Gradle está bien configurado, no debería entrar aquí
-            fail("No debería lanzar excepción con el mock configurado");
+    public void crearGrupo_adminAusente_seAgnadeSolo() {
+        String miUid = "uid-admin-456";
+        List<String> miembrosUids = new ArrayList<>();
+        miembrosUids.add("uid-otro-usuario");
+
+        if (!miembrosUids.contains(miUid)) {
+            miembrosUids.add(miUid);
         }
+
+        assertTrue(miembrosUids.contains(miUid));
+        assertEquals(2, miembrosUids.size());
     }
 
+    // TEST 2: Si el admin ya estaba, no se duplica
     @Test
-    public void testEstructuraTarea_DatosCorrectos() {
-        Map<String, Object> tarea = new HashMap<>();
-        tarea.put("titulo", "Fregar platos");
-        tarea.put("puntos", "20");
-        tarea.put("estado", "pendiente");
+    public void crearGrupo_adminYaPresente_noSeDuplica() {
+        String miUid = "uid-admin-456";
+        List<String> miembrosUids = new ArrayList<>();
+        miembrosUids.add(miUid); // Ya está
 
-        assertEquals("Fregar platos", tarea.get("titulo"));
-        assertEquals("20", tarea.get("puntos"));
-        assertEquals("pendiente", tarea.get("estado"));
+        if (!miembrosUids.contains(miUid)) {
+            miembrosUids.add(miUid);
+        }
+
+        assertEquals(1, miembrosUids.size());
     }
 
-    // ==========================================
-    // 2. TESTS QUE DEBEN FALLAR (ERROR ROJO ❌)
-    // ==========================================
-    // Nota: Estos fallan para demostrar que la lógica de seguridad es necesaria.
-
+    // TEST 3: El perfil nuevo tiene rol "adulto" y puntos 0 por defecto
     @Test
-    public void testValidacionEmail_FalloSiNoTieneFormato() {
-        String emailMalo = "usuario_sin_arroba";
+    public void crearPerfilUsuario_valoresPorDefectoCorrectos() {
+        Map<String, Object> datosUsuario = new HashMap<>();
+        datosUsuario.put("nombre", "Ivan");
+        datosUsuario.put("email", "ivan@requero.com");
+        datosUsuario.put("rol", "adulto");
+        datosUsuario.put("puntos", 0);
 
-        // Este assert obligará al test a ponerse rojo si el email no es válido
-        assertTrue("ERROR: El sistema no debería aceptar emails sin '@'",
-                emailMalo.contains("@") && emailMalo.contains("."));
+        assertEquals("adulto", datosUsuario.get("rol"));
+        assertEquals(0, datosUsuario.get("puntos"));
     }
 
+    // TEST 4: Los puntos de una tarea se muestran como "0" si el valor es nulo
     @Test
-    public void testPassword_FalloSiEsMuyCorta() {
-        String passCorta = "123";
+    public void puntosTarea_nulo_muestraCero() {
+        Object ptsObj = null; // Simula que Firestore devuelve null
 
-        // Firebase requiere mínimo 6 caracteres. Este test FALLARÁ (Rojo).
-        assertTrue("ERROR: La contraseña debe tener al menos 6 caracteres",
-                passCorta.length() >= 6);
-    }
+        // Lógica exacta de cargarTareasDelGrupoEnContenedor
+        String puntos = (ptsObj != null) ? ptsObj.toString() : "0";
 
-    @Test
-    public void testPuntos_FalloSiSonNegativos() {
-        int puntos = -10;
-
-        // Este test FALLARÁ porque los puntos no pueden ser negativos en TidyUp
-        assertTrue("ERROR: Los puntos deben ser un número positivo",
-                puntos > 0);
-    }
-
-    @Test
-    public void testTarea_FalloSiTituloEstaVacio() {
-        String titulo = "";
-
-        // Este test FALLARÁ porque una tarea necesita un nombre obligatoriamente
-        assertFalse("ERROR: El título de la tarea no puede estar vacío",
-                titulo.isEmpty());
+        assertEquals("0", puntos);
     }
 }

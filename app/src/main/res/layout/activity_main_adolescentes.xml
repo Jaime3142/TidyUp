@@ -20,7 +20,7 @@
             android:layout_height="match_parent">
 
             <ImageButton
-                android:id="@+id/imageButton"
+                android:id="@+id/botonAjustes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -31,7 +31,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textView19"
+                android:id="@+id/NombreUsuario"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/titutoUsuario"
@@ -59,11 +59,11 @@
 
             <ImageButton
                 android:id="@+id/botonInicio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="33dp"
+                android:layout_height="30dp"
                 android:layout_marginStart="20dp"
                 android:background="#00FFFFFF"
-                android:src="@drawable/home2"
+                android:src="@drawable/home_adolescentes"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -72,7 +72,7 @@
                 android:id="@+id/botonNotificaciones"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="55dp"
+                android:layout_marginStart="44dp"
                 android:background="#00FFFFFF"
                 android:src="@drawable/notifications"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -83,7 +83,7 @@
                 android:id="@+id/botonGrupos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="55dp"
+                android:layout_marginStart="44dp"
                 android:background="#00FFFFFF"
                 android:src="@drawable/grupos"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -94,7 +94,7 @@
                 android:id="@+id/botonTareas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="55dp"
+                android:layout_marginStart="44dp"
                 android:background="#00FFFFFF"
                 android:src="@drawable/tarea"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -105,7 +105,7 @@
                 android:id="@+id/botonRecompensas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="55dp"
+                android:layout_marginStart="44dp"
                 android:layout_marginEnd="20dp"
                 android:background="#00FFFFFF"
                 android:src="@drawable/regalo"

@@ -26,11 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 public class FirebaseManager {
-    
-
-   
-
-
 
 
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -115,7 +110,40 @@ public class FirebaseManager {
         mAuth.signOut();
     }
 // Funciones Adolescentes
-   // Método para guardar tareas
+    // Método para guardar tareas
+
+
+    // Definimos una interfaz para avisar cuando el nombre esté listo
+    public interface OnNombreRecuperadoListener {
+        void onNombreRecuperado(String nombre);
+    }
+
+    public void obtenerNombreDesdeFirestore(OnNombreRecuperadoListener listener) {
+        if (mAuth.getCurrentUser() == null) {
+            listener.onNombreRecuperado("Invitado");
+            return;
+        }
+
+        String emailUsuario = mAuth.getCurrentUser().getEmail();
+
+        db.collection("Usuarios")
+                .whereEqualTo("email", emailUsuario)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String nombreReal = document.getString("nombre");
+                            // Si el campo nombre existe, lo devolvemos; si no, el email
+                            listener.onNombreRecuperado((nombreReal != null && !nombreReal.isEmpty()) ? nombreReal : emailUsuario);
+                            return; // Salimos del bucle una vez encontrado
+                        }
+                    } else {
+                        // Fallo o no existe el documento
+                        listener.onNombreRecuperado(emailUsuario);
+                    }
+                });
+    }
+
     public static void guardarTarea(String titulo, String usuarioAsignado, String desc, String fecha, String puntos, OnCompleteListener<DocumentReference> listener) {
         String correo = mAuth.getCurrentUser().getEmail();
 
@@ -138,8 +166,10 @@ public class FirebaseManager {
 
     public interface CorreosCallback {
         void onCorreosLoaded(List<String> correos);
+
         void onError(Exception e); // Añadimos error por seguridad
     }
+
     // Método para cargar tareas filtradas por el correo del usuario asignado
     public void obtenerCorreosDelGrupoActual(CorreosCallback callback) {
         String miUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -178,6 +208,7 @@ public class FirebaseManager {
                 })
                 .addOnFailureListener(callback::onError);
     }
+
     public static void cargarTareasDelGrupoEnContenedor(LinearLayout contenedor, LayoutInflater inflater, List<String> correosGrupo, OnCompleteListener<QuerySnapshot> listener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -237,17 +268,59 @@ public class FirebaseManager {
                             // 4. Lógica de borrado (Check)
                             if (chk != null) {
                                 chk.setOnClickListener(v -> {
-                                    db.collection("Tareas").document(idTarea).delete()
-                                            .addOnSuccessListener(aVoid -> {
-                                                contenedor.removeView(fila);
-                                                android.widget.Toast.makeText(fila.getContext(),
-                                                        "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
+                                    // Evitamos que el check cambie visualmente hasta confirmar
+                                    chk.setChecked(false);
+
+                                    new android.app.AlertDialog.Builder(fila.getContext())
+                                            .setTitle("Completar tarea")
+                                            .setMessage("¿Quieres marcar esta tarea como completada y eliminarla?")
+                                            .setPositiveButton("Sí, completar", (dialog, which) -> {
+                                                // Convertimos los puntos a número antes de borrar la tarea
+                                                int puntosNumericos;
+                                                try {
+                                                    puntosNumericos = Integer.parseInt(puntos);
+                                                } catch (NumberFormatException e) {
+                                                    puntosNumericos = 0;
+                                                }
+                                                final int puntosFinales = puntosNumericos;
+
+                                                // 1. Borramos la tarea
+                                                db.collection("Tareas").document(idTarea).delete()
+                                                        .addOnSuccessListener(aVoid -> {
+                                                            contenedor.removeView(fila);
+                                                            android.widget.Toast.makeText(fila.getContext(),
+                                                                    "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
+
+                                                            // 2. Sumamos los puntos al usuario correspondiente
+                                                            if (correoAsignado != null && puntosFinales > 0) {
+                                                                db.collection("Usuarios")
+                                                                        .whereEqualTo("email", correoAsignado)
+                                                                        .get()
+                                                                        .addOnSuccessListener(userSnap -> {
+                                                                            if (!userSnap.isEmpty()) {
+                                                                                String userDocId = userSnap.getDocuments().get(0).getId();
+                                                                                db.collection("Usuarios").document(userDocId)
+                                                                                        .update("puntos", com.google.firebase.firestore.FieldValue.increment(puntosFinales))
+                                                                                        .addOnSuccessListener(unused ->
+                                                                                                android.widget.Toast.makeText(fila.getContext(),
+                                                                                                        "+" + puntosFinales + " puntos para " + correoAsignado,
+                                                                                                        android.widget.Toast.LENGTH_SHORT).show()
+                                                                                        );
+                                                                            }
+                                                                        });
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(e -> {
+                                                            android.widget.Toast.makeText(fila.getContext(),
+                                                                    "Error al borrar", android.widget.Toast.LENGTH_SHORT).show();
+                                                        });
                                             })
-                                            .addOnFailureListener(e -> {
-                                                chk.setChecked(false);
-                                                android.widget.Toast.makeText(fila.getContext(),
-                                                        "Error al borrar", android.widget.Toast.LENGTH_SHORT).show();
-                                            });
+                                            .setNegativeButton("Cancelar", (dialog, which) -> {
+                                                // No hacemos nada, el check ya está en false
+                                                dialog.dismiss();
+                                            })
+                                            .setCancelable(true)
+                                            .show();
                                 });
                             }
 
@@ -264,12 +337,13 @@ public class FirebaseManager {
                 .delete()
                 .addOnCompleteListener(listener);
     }
+
     // interfaz de los datos de la lista de usuarios
     public interface UsuariosCallback {
         void onUsuariosLoaded(List<String> nombres);
+
         void onError(Exception e);
     }
-
 
 
     private void obtenerNombresDeUsuarios(List<String> ids, UsuariosCallback callback) {
@@ -289,6 +363,7 @@ public class FirebaseManager {
                     });
         }
     }
+
     public void detectarGrupoYListarUsuarios(UsuariosCallback callback) {
         //Obtener mi ID actual
         String miUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -349,10 +424,10 @@ public class FirebaseManager {
     }
 
     //  CARGAR TAREAS EN EL LINEARLAYOUT
-    public static void cargarTareasEnContenedor (LinearLayout contenedor,
-                                                 LayoutInflater inflater,
-                                                 String correoUsuario,
-                                                 OnCompleteListener < QuerySnapshot > listener){
+    public static void cargarTareasEnContenedor(LinearLayout contenedor,
+                                                LayoutInflater inflater,
+                                                String correoUsuario,
+                                                OnCompleteListener<QuerySnapshot> listener) {
 
         db.collection("Tareas")
                 .whereEqualTo("asignada", correoUsuario)
@@ -410,5 +485,5 @@ public class FirebaseManager {
                     }
                 });
     }
-  
+
 }

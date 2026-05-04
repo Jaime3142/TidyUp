@@ -1,64 +1,89 @@
 package com.example.tidyup;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Fragment_notificaciones#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.fragment.app.Fragment;
+
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 public class Fragment_notificaciones extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private LinearLayout contenedorNotificaciones;
+    private ListenerRegistration listenerNotificaciones; // para poder cancelarlo
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public Fragment_notificaciones() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Fragment_notificaciones.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Fragment_notificaciones newInstance(String param1, String param2) {
-        Fragment_notificaciones fragment = new Fragment_notificaciones();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    public Fragment_notificaciones() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_notificaciones, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        contenedorNotificaciones = view.findViewById(R.id.contenedorNotificaciones);
+        escucharNotificaciones();
+    }
+
+    private void escucharNotificaciones() {
+        listenerNotificaciones = FirebaseManager.escucharNotificaciones((snapshots, error) -> {
+
+            if (!isAdded() || getActivity() == null) return;
+            if (error != null || snapshots == null) return;
+
+            requireActivity().runOnUiThread(() -> {
+
+                // LOG para verificar
+                android.util.Log.d("NOTIF", "runOnUiThread ejecutado");
+                android.util.Log.d("NOTIF", "contenedor es null: " + (contenedorNotificaciones == null));
+
+                if (contenedorNotificaciones == null) return; // protección
+
+                contenedorNotificaciones.removeAllViews();
+
+                LayoutInflater inflater = LayoutInflater.from(requireContext());
+
+                for (QueryDocumentSnapshot doc : snapshots) {
+                    String idNotif = doc.getId();
+                    String mensaje = doc.getString("mensaje");
+
+                    android.util.Log.d("NOTIF", "Inflando tarjeta: " + mensaje);
+
+                    View tarjeta = inflater.inflate(R.layout.item_notificacion, null);
+
+                    TextView tvMensaje      = tarjeta.findViewById(R.id.tvMensajeNotif);
+                    ImageButton btnEliminar = tarjeta.findViewById(R.id.btnEliminarNotif);
+
+                    if (tvMensaje != null) tvMensaje.setText(mensaje);
+                    else android.util.Log.e("NOTIF", "tvMensajeNotif es null — revisa el id en item_notificacion.xml");
+
+                    if (btnEliminar != null) {
+                        btnEliminar.setOnClickListener(v ->
+                                FirebaseManager.eliminarNotificacion(idNotif));
+                    }
+
+                    contenedorNotificaciones.addView(tarjeta);
+                    android.util.Log.d("NOTIF", "Tarjeta añadida al contenedor");
+                }
+            });
+        });
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Cancelamos el listener cuando salimos para no desperdiciar recursos
+        if (listenerNotificaciones != null) {
+            listenerNotificaciones.remove();
+        }
     }
 }

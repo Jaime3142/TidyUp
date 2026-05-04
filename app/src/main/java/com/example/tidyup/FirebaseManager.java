@@ -235,6 +235,8 @@ public class FirebaseManager {
                             String idTarea = document.getId();
                             String titulo = document.getString("titulo");
                             String correoAsignado = document.getString("asignada");
+                            String descripcion = document.getString("descripcion");
+                            String fecha = document.getString("fechaLimite");
 
                             Object ptsObj = document.get("puntos");
                             String puntos = (ptsObj != null) ? ptsObj.toString() : "0";
@@ -245,10 +247,37 @@ public class FirebaseManager {
                             TextView tvTitulo = fila.findViewById(R.id.txtTitulo);
                             TextView tvPuntos = fila.findViewById(R.id.txtPuntos);
                             CheckBox chk = fila.findViewById(R.id.checkTarea);
+                            LinearLayout panelDetalle = fila.findViewById(R.id.panelDetalle);
+                            TextView tvDescripcion = fila.findViewById(R.id.txtDescripcion);
+                            TextView tvFecha = fila.findViewById(R.id.txtFecha);
+                            TextView btnExpandir = fila.findViewById(R.id.btnExpandir);
 
                             if (tvTitulo != null) tvTitulo.setText(titulo);
                             if (tvPuntos != null) tvPuntos.setText(puntos + " pts");
 
+                            if (tvDescripcion != null)
+                                tvDescripcion.setText("Descripción: " + (descripcion != null ? descripcion : "Sin descripción"));
+                            if (tvFecha != null)
+                                tvFecha.setText("Fecha límite: " + (fecha != null ? fecha : "Sin fecha"));
+
+                            // Lógica del desplegable
+                            if (btnExpandir != null && panelDetalle != null) {
+                                View separador = fila.findViewById(R.id.separador);
+                                btnExpandir.setOnClickListener(v -> {
+                                    if (panelDetalle.getVisibility() == View.GONE) {
+                                        panelDetalle.setVisibility(View.VISIBLE);
+                                        if (separador != null) separador.setVisibility(View.VISIBLE);
+                                        btnExpandir.setText("▴"); // flecha arriba
+                                    } else {
+                                        panelDetalle.setVisibility(View.GONE);
+                                        if (separador != null) separador.setVisibility(View.GONE);
+                                        btnExpandir.setText("▾"); // flecha abajo
+                                    }
+                                });
+
+                            }
+
+                            // Nombre real del usuario asignado
                             if (correoAsignado != null && tvNombre != null) {
                                 db.collection("Usuarios")
                                         .whereEqualTo("email", correoAsignado)
@@ -287,17 +316,16 @@ public class FirebaseManager {
                                                             android.widget.Toast.makeText(fila.getContext(),
                                                                     "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
 
-                                                            // 2. Buscamos al usuario asignado por email
+                                                            // Buscamos al usuario asignado por email
                                                             if (correoAsignado != null && puntosFinales > 0) {
                                                                 db.collection("Usuarios")
                                                                         .whereEqualTo("email", correoAsignado)
                                                                         .get()
                                                                         .addOnSuccessListener(userSnap -> {
                                                                             if (!userSnap.isEmpty()) {
-                                                                                // userDocId es el UID real del usuario asignado
                                                                                 String userDocId = userSnap.getDocuments().get(0).getId();
 
-                                                                                // 3. Sumamos puntos
+                                                                                //Sumamos puntos
                                                                                 db.collection("Usuarios").document(userDocId)
                                                                                         .update("puntos", FieldValue.increment(puntosFinales))
                                                                                         .addOnSuccessListener(unused -> {
@@ -305,11 +333,11 @@ public class FirebaseManager {
                                                                                                     "+" + puntosFinales + " puntos para " + correoAsignado,
                                                                                                     android.widget.Toast.LENGTH_SHORT).show();
 
-                                                                                            // 4. Guardamos notificación con el UID del asignado
+                                                                                            //Guardamos notificación con el UID del asignado
                                                                                             FirebaseManager.guardarNotificacion(
                                                                                                     userDocId, titulo, puntosFinales);
 
-                                                                                            // 5. Notificación en el dispositivo
+                                                                                            //Notificación en el dispositivo
                                                                                             NotificationHelper.mostrarNotificacion(
                                                                                                     fila.getContext(), titulo, puntosFinales);
                                                                                         });

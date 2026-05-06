@@ -33,7 +33,8 @@ public class MainActivity_Adultos extends AppCompatActivity {
                     fragmentSeleccionado = new FragmentGroups();
                 }
                 else if (itemId == R.id.nav_tareas) {
-                    fragmentSeleccionado = new fragment_Tareas();
+                    // AQUÍ ESTÁ EL CAMBIO: Llamamos al nuevo FragmentTarea_Adultos
+                    fragmentSeleccionado = new FragmentTarea_Adultos();
                 }
                 else if (itemId == R.id.nav_grafico) {
                     fragmentSeleccionado = new Fragment_grafico();

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CalendarView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -14,7 +15,7 @@ public class CalendarioActivity extends AppCompatActivity {
 
     private CalendarView calendarView;
     private TextView tvDateSelected;
-    private ListView listViewTasks;
+    private LinearLayout contenedorTareas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +24,7 @@ public class CalendarioActivity extends AppCompatActivity {
 
         calendarView = findViewById(R.id.calendarView);
         tvDateSelected = findViewById(R.id.tvDateSelected);
-        listViewTasks = findViewById(R.id.listViewTasks);
+        contenedorTareas = findViewById(R.id.contenedorTareasCalendario);
 
         // Configurar fecha actual por defecto
         Calendar cal = Calendar.getInstance();

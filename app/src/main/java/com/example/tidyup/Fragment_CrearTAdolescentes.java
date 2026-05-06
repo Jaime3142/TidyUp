@@ -2,10 +2,6 @@ package com.example.tidyup;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,11 +12,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,7 +41,7 @@ public class Fragment_CrearTAdolescentes extends Fragment {
     private Spinner spinnerUsuarios;
     private EditText descripcion;
     private EditText fecha;
-    private EditText puntos;
+    private Spinner spinnerDificultad;
 
     private Button botonGuardar;
 
@@ -96,12 +93,19 @@ public class Fragment_CrearTAdolescentes extends Fragment {
             spinnerUsuarios = miVista.findViewById(R.id.nUsuario);
             descripcion = miVista.findViewById(R.id.descripcionTarea);
             fecha = miVista.findViewById(R.id.fecha);
-            puntos = miVista.findViewById(R.id.cPuntos);
+            spinnerDificultad = miVista.findViewById(R.id.spinnerDificultad);
             botonGuardar = miVista.findViewById(R.id.bCrearT);
             EditText etFecha = miVista.findViewById(R.id.fecha);
 
+        // sTRING DIFILCUTADES
 
-
+        String[] dificultades = {"Fácil (5-8 pts)", "Medio (9-14 pts)", "Difícil (15-20 pts)"};
+        ArrayAdapter<String> adapterDificultad = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                dificultades);
+        adapterDificultad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerDificultad.setAdapter(adapterDificultad);
 
             //boton fecha
         etFecha.setOnClickListener(v -> {
@@ -169,53 +173,60 @@ public class Fragment_CrearTAdolescentes extends Fragment {
 
 
     private void ejecutarGuardado() {
-        // 1. Verificamos que las vistas no sean nulas antes de usarlas
-        if (titulo == null || spinnerUsuarios == null || descripcion == null || fecha == null || puntos == null) {
+        if (titulo == null || spinnerUsuarios == null || descripcion == null
+                || fecha == null || spinnerDificultad == null) {
             Toast.makeText(getContext(), "Error interno: Vistas no encontradas", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 2. Extraemos los textos con seguridad
         String txttitulo = titulo.getText().toString().trim();
-        String txtdesc = descripcion.getText().toString().trim();
-        String txtfecha = fecha.getText().toString().trim();
-        String txtpuntos = puntos.getText().toString().trim();
+        String txtdesc   = descripcion.getText().toString().trim();
+        String txtfecha  = fecha.getText().toString().trim();
+        String txtpuntos = calcularPuntosPorDificultad();
 
-
-        // 3. SEGURIDAD PARA EL SPINNER (Aquí es donde solía petar)
-        String txtusuario = "";
+        String txtusuario;
         if (spinnerUsuarios.getSelectedItem() != null) {
             txtusuario = spinnerUsuarios.getSelectedItem().toString();
         } else {
-            txtusuario = "Sin asignar"; // Valor por defecto si no hay nada seleccionado
+            txtusuario = "Sin asignar";
         }
 
-        if (txtpuntos.isEmpty()) txtpuntos = "0";
-
-        // 4. Validación rápida: No dejar guardar si el título está vacío
         if (txttitulo.isEmpty()) {
             titulo.setError("El título es obligatorio");
             return;
         }
 
-        // 5. Llamada al Manager
         FirebaseManager.guardarTarea(txttitulo, txtusuario, txtdesc, txtfecha, txtpuntos, task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(getContext(), "Tarea guardada", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        "Tarea guardada (" + txtpuntos + " pts)", Toast.LENGTH_SHORT).show();
 
-                // Volvemos atrás de forma segura
                 if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                     getParentFragmentManager().popBackStack();
                 } else {
                     reemplazarFragment(new fragment_Tareas());
                 }
             } else {
-                Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private String calcularPuntosPorDificultad() {
+        int posicion = spinnerDificultad.getSelectedItemPosition();
+        int min, max;
 
+        switch (posicion) {
+            case 0: min = 5;  max = 8;  break; // Fácil
+            case 1: min = 9;  max = 14; break; // Medio
+            case 2: min = 15; max = 20; break; // Difícil
+            default: return "5";
+        }
+
+        int puntos = min + (int)(Math.random() * (max - min + 1));
+        return String.valueOf(puntos);
+    }
 
 
     public void reemplazarFragment(Fragment fragment) {

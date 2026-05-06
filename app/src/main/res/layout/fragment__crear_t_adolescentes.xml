@@ -8,6 +8,18 @@
     android:background="@drawable/background"
     android:padding="24dp">
 
+    <!-- TÍTULO -->
+    <TextView
+        android:id="@+id/labelTarea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Titulo"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <EditText
         android:id="@+id/tituloTarea"
         android:layout_width="match_parent"
@@ -22,8 +34,10 @@
         android:textColorHint="#757575"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/labelTarea"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- USUARIO -->
     <TextView
         android:id="@+id/labelUsuario"
         android:layout_width="wrap_content"
@@ -36,18 +50,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tituloTarea" />
 
-    <TextView
-        android:id="@+id/labelFecha2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Puntos"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fecha" />
-
     <FrameLayout
         android:id="@+id/containerSpinner"
         android:layout_width="match_parent"
@@ -55,7 +57,8 @@
         android:layout_marginTop="4dp"
         android:background="@drawable/fondo_input_blanco"
         app:layout_constraintTop_toBottomOf="@id/labelUsuario"
-        tools:layout_editor_absoluteX="16dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Spinner
             android:id="@+id/nUsuario"
@@ -65,72 +68,48 @@
             android:paddingStart="8dp" />
     </FrameLayout>
 
+    <!-- DESCRIPCIÓN -->
+    <TextView
+        android:id="@+id/labelTarea2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Descripcion"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/containerSpinner" />
+
     <EditText
         android:id="@+id/descripcionTarea"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/fondo_input_blanco"
-        android:hint="Ej:Limpiar grifo"
+        android:hint="Ej: Limpiar grifo"
         android:inputType="textCapSentences"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textColor="#000000"
         android:textColorHint="#757575"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/labelTarea2"
-        tools:layout_editor_absoluteX="16dp" />
-
-    <TextView
-        android:id="@+id/labelTarea2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Descripcion"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/labelTarea2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/containerSpinner" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/bCrearT"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@drawable/boton_amarillo"
-        android:text="Crear Tarea"
-        android:textAllCaps="false"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cPuntos"
-        app:layout_constraintVertical_bias="0.218" />
-
-    <TextView
-        android:id="@+id/labelTarea"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Titulo"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- FECHA -->
     <TextView
         android:id="@+id/labelFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:text="Fecha"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descripcionTarea" />
+        app:layout_constraintTop_toBottomOf="@id/descripcionTarea" />
 
     <EditText
         android:id="@+id/fecha"
@@ -145,20 +124,55 @@
         android:textColor="#000000"
         android:textColorHint="#757575"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelFecha"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/labelFecha" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
+    <!-- DIFICULTAD -->
+    <TextView
+        android:id="@+id/labelFecha2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Dificultad"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fecha" />
+
+    <FrameLayout
         android:id="@+id/cPuntos"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/fondo_input_blanco"
-        android:ems="10"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelFecha2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/labelFecha2" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Spinner
+            android:id="@+id/spinnerDificultad"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="#000000"
+            android:paddingStart="8dp" />
+    </FrameLayout>
+
+    <!-- BOTÓN -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bCrearT"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/boton_amarillo"
+        android:text="Crear Tarea"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/cPuntos"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -48,7 +48,7 @@ public class FirebaseManager {
         Map<String, Object> datosUsuario = new HashMap<>();
         datosUsuario.put("nombre", nombre);
         datosUsuario.put("email", email);
-        datosUsuario.put("rol", "adulto");
+        datosUsuario.put("rol", "");
         datosUsuario.put("puntos", 0);
 
         return db.collection("Usuarios").document(uid).set(datosUsuario);
@@ -91,6 +91,50 @@ public class FirebaseManager {
 
     public static Task<QuerySnapshot> obtenerTodosLosUsuarios() {
         return db.collection("Usuarios").get();
+    }
+
+    public interface UsuariosDisponiblesCallback {
+        void onUsuariosCargados(List<Map<String, String>> usuariosDisponibles);
+        void onError(Exception e);
+    }
+
+    // Sustituye tu antiguo método obtenerUsuariosNoMiembros por este:
+    public static void obtenerUsuariosLibres(UsuariosDisponiblesCallback callback) {
+        String miUid = getCurrentUserUid();
+
+        // 1. Buscamos TODOS los grupos para hacer una "lista negra" de usuarios que ya están en alguno
+        db.collection("Grupos").get().addOnSuccessListener(gruposSnap -> {
+            List<String> uidsOcupados = new ArrayList<>();
+            for (DocumentSnapshot grupo : gruposSnap.getDocuments()) {
+                List<String> miembros = (List<String>) grupo.get("miembros");
+                if (miembros != null) {
+                    uidsOcupados.addAll(miembros);
+                }
+            }
+
+            // 2. Buscamos a todos los usuarios y filtramos
+            db.collection("Usuarios").get().addOnSuccessListener(usuariosSnap -> {
+                List<Map<String, String>> usuariosDisponibles = new ArrayList<>();
+
+                for (DocumentSnapshot document : usuariosSnap.getDocuments()) {
+                    String uid = document.getId();
+                    String nombre = document.getString("nombre");
+                    String email = document.getString("email");
+
+                    // Verificamos que el usuario NO esté en la lista de ocupados y NO seamos nosotros mismos
+                    if (nombre != null && email != null && !uidsOcupados.contains(uid) && !uid.equals(miUid)) {
+                        Map<String, String> userData = new HashMap<>();
+                        userData.put("uid", uid);
+                        userData.put("nombre", nombre);
+                        userData.put("email", email);
+                        userData.put("display_text", nombre + " (" + email + ")"); // Texto para el buscador
+                        usuariosDisponibles.add(userData);
+                    }
+                }
+                callback.onUsuariosCargados(usuariosDisponibles);
+            }).addOnFailureListener(callback::onError);
+
+        }).addOnFailureListener(callback::onError);
     }
 
     public static Task<DocumentSnapshot> obtenerUsuarioPorUid(String uid) {

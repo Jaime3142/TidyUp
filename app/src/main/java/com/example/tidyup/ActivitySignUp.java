@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 public class ActivitySignUp extends AppCompatActivity {
-    private EditText etUsername, etEmail, etPassword;
+    private EditText etUsername, etEmail, etPassword, etPasswordConfirm;
     private Button btnRegister;
 
     @Override
@@ -22,15 +22,21 @@ public class ActivitySignUp extends AppCompatActivity {
         etUsername = findViewById(R.id.editTextTextUsername);
         etEmail = findViewById(R.id.editTextTextEmailAddress);
         etPassword = findViewById(R.id.editTextTextPassword);
+        etPasswordConfirm = findViewById(R.id.editTextTextPassword2);
+
         btnRegister = findViewById(R.id.buttonSignUp);
 
         btnRegister.setOnClickListener(v -> {
             String username = etUsername.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
             String pass = etPassword.getText().toString().trim();
+            String passConfirm = etPasswordConfirm.getText().toString().trim();
 
-            if (username.isEmpty() || email.isEmpty() || pass.isEmpty()) {
+            if (username.isEmpty() || email.isEmpty() || pass.isEmpty() || passConfirm.isEmpty()) {
                 Toast.makeText(ActivitySignUp.this, "Faltan campos por rellenar", Toast.LENGTH_SHORT).show();
+            }
+            else if (!pass.equals(passConfirm)) {
+                Toast.makeText(ActivitySignUp.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             }
             else if (!esPasswordSegura(pass)) {
                 Toast.makeText(ActivitySignUp.this, "La contraseña debe tener mínimo 8 letras, una mayúscula y un carácter especial", Toast.LENGTH_LONG).show();

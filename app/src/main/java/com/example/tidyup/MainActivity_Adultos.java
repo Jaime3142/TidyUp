@@ -1,10 +1,14 @@
 package com.example.tidyup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity_Adultos extends AppCompatActivity {
@@ -13,6 +17,14 @@ public class MainActivity_Adultos extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Intent intent = new Intent(MainActivity_Adultos.this, ActivityOption.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 

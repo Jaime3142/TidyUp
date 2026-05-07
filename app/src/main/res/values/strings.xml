@@ -20,6 +20,7 @@
     <string name="incorrect_password">Nombre de usuario o contraseña incorrecto</string>
     <string name="username">Nombre de usuario</string>
     <string name="outlook">Correo electrónico</string>
+    <string name="outlook2">Confirmar correo electrónico</string>
     <string name="login">Iniciar sesión</string>
     <string name="sign_up">Crear cuenta</string>
     <string name="login_with">Iniciar sesión con</string>

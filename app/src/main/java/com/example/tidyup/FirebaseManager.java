@@ -13,10 +13,11 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -46,7 +47,7 @@ public class FirebaseManager {
         Map<String, Object> datosUsuario = new HashMap<>();
         datosUsuario.put("nombre", nombre);
         datosUsuario.put("email", email);
-        datosUsuario.put("rol", "adulto");
+        datosUsuario.put("rol", "");
         datosUsuario.put("puntos", 0);
 
         return db.collection("Usuarios").document(uid).set(datosUsuario);
@@ -91,6 +92,50 @@ public class FirebaseManager {
         return db.collection("Usuarios").get();
     }
 
+    public interface UsuariosDisponiblesCallback {
+        void onUsuariosCargados(List<Map<String, String>> usuariosDisponibles);
+        void onError(Exception e);
+    }
+
+    // Sustituye tu antiguo método obtenerUsuariosNoMiembros por este:
+    public static void obtenerUsuariosLibres(UsuariosDisponiblesCallback callback) {
+        String miUid = getCurrentUserUid();
+
+        // 1. Buscamos TODOS los grupos para hacer una "lista negra" de usuarios que ya están en alguno
+        db.collection("Grupos").get().addOnSuccessListener(gruposSnap -> {
+            List<String> uidsOcupados = new ArrayList<>();
+            for (DocumentSnapshot grupo : gruposSnap.getDocuments()) {
+                List<String> miembros = (List<String>) grupo.get("miembros");
+                if (miembros != null) {
+                    uidsOcupados.addAll(miembros);
+                }
+            }
+
+            // 2. Buscamos a todos los usuarios y filtramos
+            db.collection("Usuarios").get().addOnSuccessListener(usuariosSnap -> {
+                List<Map<String, String>> usuariosDisponibles = new ArrayList<>();
+
+                for (DocumentSnapshot document : usuariosSnap.getDocuments()) {
+                    String uid = document.getId();
+                    String nombre = document.getString("nombre");
+                    String email = document.getString("email");
+
+                    // Verificamos que el usuario NO esté en la lista de ocupados y NO seamos nosotros mismos
+                    if (nombre != null && email != null && !uidsOcupados.contains(uid) && !uid.equals(miUid)) {
+                        Map<String, String> userData = new HashMap<>();
+                        userData.put("uid", uid);
+                        userData.put("nombre", nombre);
+                        userData.put("email", email);
+                        userData.put("display_text", nombre + " (" + email + ")"); // Texto para el buscador
+                        usuariosDisponibles.add(userData);
+                    }
+                }
+                callback.onUsuariosCargados(usuariosDisponibles);
+            }).addOnFailureListener(callback::onError);
+
+        }).addOnFailureListener(callback::onError);
+    }
+
     public static Task<DocumentSnapshot> obtenerUsuarioPorUid(String uid) {
         return db.collection("Usuarios").document(uid).get();
     }
@@ -109,31 +154,72 @@ public class FirebaseManager {
         mAuth.signOut();
     }
 // Funciones Adolescentes
-   // Método para guardar tareas
-    public static void guardarTarea(String titulo, String usuarioAsignado, String desc, String fecha, String puntos, OnCompleteListener<DocumentReference> listener) {
-        String correo = mAuth.getCurrentUser().getEmail();
+    // Método para guardar tareas
 
-        db.collection("Usuarios").document(correo).get().addOnSuccessListener(documentSnapshot -> {
-            String idGrupo = documentSnapshot.getString("id_grupo");
 
-            Map<String, Object> tarea = new HashMap<>();
-            tarea.put("titulo", titulo);
-            tarea.put("usuarioAsignado", usuarioAsignado);
-            tarea.put("descripcion", desc);
-            tarea.put("fechaLimite", fecha);
-            tarea.put("puntos", puntos); // Guardamos los puntos
-            tarea.put("id_grupo", idGrupo);
-            tarea.put("estado", "pendiente");
-            tarea.put("asignada", correo);
+    // Definimos una interfaz para avisar cuando el nombre esté listo
+    public interface OnNombreRecuperadoListener {
+        void onNombreRecuperado(String nombre);
+    }
 
-            db.collection("Tareas").add(tarea).addOnCompleteListener(listener);
-        });
+    public void obtenerNombreDesdeFirestore(OnNombreRecuperadoListener listener) {
+        if (mAuth.getCurrentUser() == null) {
+            listener.onNombreRecuperado("Invitado");
+            return;
+        }
+
+        String emailUsuario = mAuth.getCurrentUser().getEmail();
+
+        db.collection("Usuarios")
+                .whereEqualTo("email", emailUsuario)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String nombreReal = document.getString("nombre");
+                            // Si el campo nombre existe, lo devolvemos; si no, el email
+                            listener.onNombreRecuperado((nombreReal != null && !nombreReal.isEmpty()) ? nombreReal : emailUsuario);
+                            return; // Salimos del bucle una vez encontrado
+                        }
+                    } else {
+                        // Fallo o no existe el documento
+                        listener.onNombreRecuperado(emailUsuario);
+                    }
+                });
+    }
+
+    public static void guardarTarea(String titulo, String nombreAsignado, String desc, String fecha, String puntos, OnCompleteListener<DocumentReference> listener) {
+
+        // Buscamos el email del usuario seleccionado en el spinner por su nombre
+        db.collection("Usuarios")
+                .whereEqualTo("nombre", nombreAsignado)
+                .get()
+                .addOnSuccessListener(snapAsignado -> {
+                    if (snapAsignado.isEmpty()) return;
+
+                    String emailAsignado = snapAsignado.getDocuments().get(0).getString("email");
+
+                    Map<String, Object> tarea = new HashMap<>();
+                    tarea.put("titulo", titulo);
+                    tarea.put("descripcion", desc);
+                    tarea.put("fechaLimite", fecha);
+                    tarea.put("puntos", puntos);
+                    tarea.put("estado", "pendiente");
+                    tarea.put("asignada", emailAsignado); // ✅ email del usuario seleccionado
+
+                    db.collection("Tareas").add(tarea).addOnCompleteListener(listener);
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("TAREA", "Error buscando usuario: " + e.getMessage());
+                });
     }
 
     public interface CorreosCallback {
         void onCorreosLoaded(List<String> correos);
+
         void onError(Exception e); // Añadimos error por seguridad
     }
+
     // Método para cargar tareas filtradas por el correo del usuario asignado
     public void obtenerCorreosDelGrupoActual(CorreosCallback callback) {
         String miUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -172,16 +258,15 @@ public class FirebaseManager {
                 })
                 .addOnFailureListener(callback::onError);
     }
+
     public static void cargarTareasDelGrupoEnContenedor(LinearLayout contenedor, LayoutInflater inflater, List<String> correosGrupo, OnCompleteListener<QuerySnapshot> listener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // 1. Validación: Si no hay correos, limpiamos y salimos
         if (correosGrupo == null || correosGrupo.isEmpty()) {
             contenedor.removeAllViews();
             return;
         }
 
-        // 2. Consultamos las tareas de todos los miembros del grupo
         db.collection("Tareas")
                 .whereIn("asignada", correosGrupo)
                 .get()
@@ -190,62 +275,130 @@ public class FirebaseManager {
                         contenedor.removeAllViews();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Datos de la tarea
                             String idTarea = document.getId();
                             String titulo = document.getString("titulo");
                             String correoAsignado = document.getString("asignada");
+                            String descripcion = document.getString("descripcion");
+                            String fecha = document.getString("fechaLimite");
 
                             Object ptsObj = document.get("puntos");
                             String puntos = (ptsObj != null) ? ptsObj.toString() : "0";
 
-                            // 3. Inflamos la vista de la tarjeta
                             View fila = inflater.inflate(R.layout.item_tarea, null);
 
                             TextView tvNombre = fila.findViewById(R.id.txtNombre);
                             TextView tvTitulo = fila.findViewById(R.id.txtTitulo);
                             TextView tvPuntos = fila.findViewById(R.id.txtPuntos);
                             CheckBox chk = fila.findViewById(R.id.checkTarea);
+                            LinearLayout panelDetalle = fila.findViewById(R.id.panelDetalle);
+                            TextView tvDescripcion = fila.findViewById(R.id.txtDescripcion);
+                            TextView tvFecha = fila.findViewById(R.id.txtFecha);
+                            TextView btnExpandir = fila.findViewById(R.id.btnExpandir);
 
-                            // Seteamos lo que ya tenemos
                             if (tvTitulo != null) tvTitulo.setText(titulo);
                             if (tvPuntos != null) tvPuntos.setText(puntos + " pts");
 
-                            // --- LÓGICA PARA MOSTRAR NOMBRE EN VEZ DE CORREO ---
+                            if (tvDescripcion != null)
+                                tvDescripcion.setText("Descripción: " + (descripcion != null ? descripcion : "Sin descripción"));
+                            if (tvFecha != null)
+                                tvFecha.setText("Fecha límite: " + (fecha != null ? fecha : "Sin fecha"));
+
+                            // Lógica del desplegable
+                            if (btnExpandir != null && panelDetalle != null) {
+                                View separador = fila.findViewById(R.id.separador);
+                                btnExpandir.setOnClickListener(v -> {
+                                    if (panelDetalle.getVisibility() == View.GONE) {
+                                        panelDetalle.setVisibility(View.VISIBLE);
+                                        if (separador != null) separador.setVisibility(View.VISIBLE);
+                                        btnExpandir.setText("▴"); // flecha arriba
+                                    } else {
+                                        panelDetalle.setVisibility(View.GONE);
+                                        if (separador != null) separador.setVisibility(View.GONE);
+                                        btnExpandir.setText("▾"); // flecha abajo
+                                    }
+                                });
+
+                            }
+
+                            // Nombre real del usuario asignado
                             if (correoAsignado != null && tvNombre != null) {
-                                // Buscamos al usuario que tiene ese email
                                 db.collection("Usuarios")
                                         .whereEqualTo("email", correoAsignado)
                                         .get()
                                         .addOnSuccessListener(userSnap -> {
                                             if (!userSnap.isEmpty()) {
-                                                // Si lo encuentra, ponemos su nombre real
                                                 String nombreReal = userSnap.getDocuments().get(0).getString("nombre");
                                                 tvNombre.setText(nombreReal);
                                             } else {
-                                                // Si no lo encuentra, dejamos el correo para no dejarlo vacío
                                                 tvNombre.setText(correoAsignado);
                                             }
                                         });
                             }
 
-                            // 4. Lógica de borrado (Check)
                             if (chk != null) {
                                 chk.setOnClickListener(v -> {
-                                    db.collection("Tareas").document(idTarea).delete()
-                                            .addOnSuccessListener(aVoid -> {
-                                                contenedor.removeView(fila);
-                                                android.widget.Toast.makeText(fila.getContext(),
-                                                        "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
+                                    chk.setChecked(false);
+
+                                    new android.app.AlertDialog.Builder(fila.getContext())
+                                            .setTitle("Completar tarea")
+                                            .setMessage("¿Quieres marcar esta tarea como completada y eliminarla?")
+                                            .setPositiveButton("Sí, completar", (dialog, which) -> {
+
+                                                int puntosNumericos;
+                                                try {
+                                                    puntosNumericos = Integer.parseInt(puntos);
+                                                } catch (NumberFormatException e) {
+                                                    puntosNumericos = 0;
+                                                }
+                                                final int puntosFinales = puntosNumericos;
+
+                                                // 1. Borramos la tarea
+                                                db.collection("Tareas").document(idTarea).delete()
+                                                        .addOnSuccessListener(aVoid -> {
+                                                            contenedor.removeView(fila);
+                                                            android.widget.Toast.makeText(fila.getContext(),
+                                                                    "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
+
+                                                            // Buscamos al usuario asignado por email
+                                                            if (correoAsignado != null && puntosFinales > 0) {
+                                                                db.collection("Usuarios")
+                                                                        .whereEqualTo("email", correoAsignado)
+                                                                        .get()
+                                                                        .addOnSuccessListener(userSnap -> {
+                                                                            if (!userSnap.isEmpty()) {
+                                                                                String userDocId = userSnap.getDocuments().get(0).getId();
+
+                                                                                //Sumamos puntos
+                                                                                db.collection("Usuarios").document(userDocId)
+                                                                                        .update("puntos", FieldValue.increment(puntosFinales))
+                                                                                        .addOnSuccessListener(unused -> {
+                                                                                            android.widget.Toast.makeText(fila.getContext(),
+                                                                                                    "+" + puntosFinales + " puntos para " + correoAsignado,
+                                                                                                    android.widget.Toast.LENGTH_SHORT).show();
+
+                                                                                            //Guardamos notificación con el UID del asignado
+                                                                                            FirebaseManager.guardarNotificacion(
+                                                                                                    userDocId, titulo, puntosFinales);
+
+                                                                                            //Notificación en el dispositivo
+                                                                                            NotificationHelper.mostrarNotificacion(
+                                                                                                    fila.getContext(), titulo, puntosFinales);
+                                                                                        });
+                                                                            }
+                                                                        });
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(e -> {
+                                                            android.widget.Toast.makeText(fila.getContext(),
+                                                                    "Error al borrar", android.widget.Toast.LENGTH_SHORT).show();
+                                                        });
                                             })
-                                            .addOnFailureListener(e -> {
-                                                chk.setChecked(false);
-                                                android.widget.Toast.makeText(fila.getContext(),
-                                                        "Error al borrar", android.widget.Toast.LENGTH_SHORT).show();
-                                            });
+                                            .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                                            .setCancelable(true)
+                                            .show();
                                 });
                             }
 
-                            // Añadimos la tarjeta al contenedor
                             contenedor.addView(fila);
                         }
                     }
@@ -253,17 +406,13 @@ public class FirebaseManager {
                 });
     }
 
-    public static void eliminarTarea(String idDocumento, OnCompleteListener<Void> listener) {
-        db.collection("Tareas").document(idDocumento)
-                .delete()
-                .addOnCompleteListener(listener);
-    }
+
     // interfaz de los datos de la lista de usuarios
     public interface UsuariosCallback {
         void onUsuariosLoaded(List<String> nombres);
+
         void onError(Exception e);
     }
-
 
 
     private void obtenerNombresDeUsuarios(List<String> ids, UsuariosCallback callback) {
@@ -283,6 +432,7 @@ public class FirebaseManager {
                     });
         }
     }
+
     public void detectarGrupoYListarUsuarios(UsuariosCallback callback) {
         //Obtener mi ID actual
         String miUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -343,10 +493,10 @@ public class FirebaseManager {
     }
 
     //  CARGAR TAREAS EN EL LINEARLAYOUT
-    public static void cargarTareasEnContenedor (LinearLayout contenedor,
-                                                 LayoutInflater inflater,
-                                                 String correoUsuario,
-                                                 OnCompleteListener < QuerySnapshot > listener){
+    public static void cargarTareasEnContenedor(LinearLayout contenedor,
+                                                LayoutInflater inflater,
+                                                String correoUsuario,
+                                                OnCompleteListener<QuerySnapshot> listener) {
 
         db.collection("Tareas")
                 .whereEqualTo("asignada", correoUsuario)
@@ -384,13 +534,17 @@ public class FirebaseManager {
                                                     Toast.makeText(fila.getContext(),
                                                             "¡Tarea completada!",
                                                             Toast.LENGTH_SHORT).show();
+
+
                                                 })
                                                 .addOnFailureListener(e -> {
                                                     chk.setChecked(false);
                                                     Toast.makeText(fila.getContext(),
                                                             "Error al borrar",
                                                             Toast.LENGTH_SHORT).show();
+
                                                 });
+
                                     }
                                 });
                             }
@@ -404,5 +558,39 @@ public class FirebaseManager {
                     }
                 });
     }
-  
+
+    // ── NOTIFICACIONES ──────────────────────────────────────────────
+
+    public static void guardarNotificacion(String uidUsuario, String tituloTarea, int puntos) {
+        // LOG para verificar que se llama
+        android.util.Log.d("NOTIF", "Intentando guardar notificación...");
+        android.util.Log.d("NOTIF", "UID: " + uidUsuario + " | Tarea: " + tituloTarea + " | Puntos: " + puntos);
+
+        Map<String, Object> notif = new HashMap<>();
+        notif.put("uid",     uidUsuario);
+        notif.put("mensaje", "Has completado \"" + tituloTarea + "\" y has ganado " + puntos + " puntos");
+        notif.put("titulo",  tituloTarea);
+        notif.put("puntos",  puntos);
+        notif.put("fecha",   FieldValue.serverTimestamp());
+        notif.put("leida",   false);
+
+        db.collection("Notificaciones").add(notif)
+                .addOnSuccessListener(ref ->
+                        android.util.Log.d("NOTIF", "✅ Notificación guardada con ID: " + ref.getId()))
+                .addOnFailureListener(e ->
+                        android.util.Log.e("NOTIF", "❌ Error al guardar: " + e.getMessage()));
+    }
+
+
+    public static ListenerRegistration escucharNotificaciones(EventListener<QuerySnapshot> listener) {
+        String uid = getCurrentUserUid();
+        return db.collection("Notificaciones")
+                .whereEqualTo("uid", uid)
+                .addSnapshotListener(listener); // escucha cambios en tiempo real
+    }
+
+    public static Task<Void> eliminarNotificacion(String idNotificacion) {
+        return db.collection("Notificaciones").document(idNotificacion).delete();
+    }
+
 }

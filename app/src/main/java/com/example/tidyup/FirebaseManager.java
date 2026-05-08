@@ -6,6 +6,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class FirebaseManager {
     
@@ -235,21 +237,7 @@ public class FirebaseManager {
                             }
 
                             // 4. Lógica de borrado (Check)
-                            if (chk != null) {
-                                chk.setOnClickListener(v -> {
-                                    db.collection("Tareas").document(idTarea).delete()
-                                            .addOnSuccessListener(aVoid -> {
-                                                contenedor.removeView(fila);
-                                                android.widget.Toast.makeText(fila.getContext(),
-                                                        "¡Tarea completada!", android.widget.Toast.LENGTH_SHORT).show();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                chk.setChecked(false);
-                                                android.widget.Toast.makeText(fila.getContext(),
-                                                        "Error al borrar", android.widget.Toast.LENGTH_SHORT).show();
-                                            });
-                                });
-                            }
+
 
                             // Añadimos la tarjeta al contenedor
                             contenedor.addView(fila);
@@ -381,23 +369,57 @@ public class FirebaseManager {
 
 
                             if (chk != null) {
-                                chk.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                                    if (isChecked) {
+
+                                chk.setOnClickListener(v -> {
+
+                                    AlertDialog.Builder builder =
+                                            new AlertDialog.Builder(fila.getContext());
+
+                                    builder.setTitle("Confirmar tarea");
+
+                                    builder.setMessage("¿Quieres marcar esta tarea como realizada?");
+
+                                    // BOTÓN CONFIRMAR
+                                    builder.setPositiveButton("Confirmar", (dialog, which) -> {
 
                                         db.collection("Tareas").document(idTarea).delete()
                                                 .addOnSuccessListener(aVoid -> {
+
                                                     contenedor.removeView(fila);
-                                                    Toast.makeText(fila.getContext(),
-                                                            "¡Tarea completada!",
-                                                            Toast.LENGTH_SHORT).show();
+
+                                                    Toast.makeText(
+                                                            fila.getContext(),
+                                                            "Tarea realizada",
+                                                            Toast.LENGTH_SHORT
+                                                    ).show();
                                                 })
                                                 .addOnFailureListener(e -> {
+
                                                     chk.setChecked(false);
-                                                    Toast.makeText(fila.getContext(),
-                                                            "Error al borrar",
-                                                            Toast.LENGTH_SHORT).show();
+
+                                                    Toast.makeText(
+                                                            fila.getContext(),
+                                                            "Error al completar",
+                                                            Toast.LENGTH_SHORT
+                                                    ).show();
                                                 });
-                                    }
+                                    });
+
+                                    // BOTÓN CANCELAR
+                                    builder.setNegativeButton("Cancelar", (dialog, which) -> {
+
+                                        chk.setChecked(false);
+
+                                        Toast.makeText(
+                                                fila.getContext(),
+                                                "Acción cancelada",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+
+                                        dialog.dismiss();
+                                    });
+
+                                    builder.show();
                                 });
                             }
 

@@ -26,12 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 public class FirebaseManager {
-    
-
-   
-
-
-
 
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();

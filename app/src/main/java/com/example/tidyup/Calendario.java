@@ -11,6 +11,11 @@ import android.widget.CalendarView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+// Nuevas importaciones de Firebase
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -18,7 +23,8 @@ public class Calendario extends Fragment {
 
     private CalendarView calendarView;
     private LinearLayout contenedorTareas;
-    private TextView tvDateSelected; // Añadido para el texto de la fecha
+    private TextView tvDateSelected;
+    private TextView tvTitle; // Añadido para el título principal
     private FirebaseManager manager = new FirebaseManager();
 
     public Calendario() {
@@ -37,6 +43,19 @@ public class Calendario extends Fragment {
             calendarView = rootView.findViewById(R.id.calendarView);
             contenedorTareas = rootView.findViewById(R.id.contenedorTareasCalendario);
             tvDateSelected = rootView.findViewById(R.id.tvDateSelected);
+            tvTitle = rootView.findViewById(R.id.tvTitle); // Enlazamos el título
+
+            // --- NUEVO: PONER EL NOMBRE DEL USUARIO EN EL TÍTULO ---
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null && tvTitle != null) {
+                String email = currentUser.getEmail();
+                if (email != null) {
+                    // Cortamos el correo para mostrar solo el nombre (ej: example3@gmail.com -> example3)
+                    String username = email.split("@")[0];
+                    tvTitle.setText(username);
+                }
+            }
+          
 
             // 2. Cargamos las tareas inicialmente
             cargarTareas(inflater);
@@ -68,7 +87,6 @@ public class Calendario extends Fragment {
                             cargarTareas(inflater);
 
                         } catch (Exception e) {
-                            // Si falla al cambiar la fecha o al limpiar el contenedor, capturamos el error
                             e.printStackTrace();
                             if (getContext() != null) {
                                 Toast.makeText(getContext(), "Error al actualizar el calendario", Toast.LENGTH_SHORT).show();
@@ -78,7 +96,6 @@ public class Calendario extends Fragment {
                 });
             }
         } catch (Exception e) {
-            // Si falla algo grave al crear la vista, capturamos el error para que la app no crashee
             e.printStackTrace();
             if (getContext() != null) {
                 Toast.makeText(getContext(), "Error cargando la pantalla", Toast.LENGTH_SHORT).show();

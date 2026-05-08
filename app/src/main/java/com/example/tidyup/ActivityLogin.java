@@ -1,6 +1,7 @@
 package com.example.tidyup;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,15 @@ public class ActivityLogin extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Pedir permiso de notificaciones en Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+            }
+        }
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -65,11 +75,8 @@ public class ActivityLogin extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
         if (!FirebaseManager.getCurrentUserUid().isEmpty()) {
-            Intent intent = new Intent(ActivityLogin.this, ActivityOption.class);
-            startActivity(intent);
-            finish();
+            redireccionarSegunRol();
         }
     }
 
@@ -81,24 +88,48 @@ public class ActivityLogin extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Inicio de sesión correcto
                             Toast.makeText(ActivityLogin.this, "Sesión iniciada", Toast.LENGTH_SHORT).show();
-                            irAHome();
-                        } else {
-                            // Usuario no registrado
-                            String errorMsg = "Error de autenticación";
 
+                            // ¡AQUÍ ESTABA EL CAMBIO! Ahora usamos el semáforo en lugar de irAHome()
+                            redireccionarSegunRol();
+
+                        } else {
+                            // Usuario no registrado o error
+                            String errorMsg = "Error de autenticación";
                             if (task.getException() != null) {
                                 errorMsg = "Datos incorrectos o usuario no registrado";
                             }
-
                             Toast.makeText(ActivityLogin.this, errorMsg, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
     }
 
-    private void irAHome() {
-        Intent intent = new Intent(ActivityLogin.this, ActivityOption.class);
-        startActivity(intent);
-        finish();
+    private void redireccionarSegunRol() {
+        String miUid = FirebaseManager.getCurrentUserUid();
+
+        FirebaseManager.obtenerUsuarioPorUid(miUid).addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                String rol = doc.getString("rol");
+                Intent intent;
+
+                // Redirigimos según el rol exacto
+                if ("adolescente".equals(rol)) {
+                    intent = new Intent(ActivityLogin.this, MainActivity_Adolescentes.class);
+                } else if ("mayor".equals(rol)) {
+                    intent = new Intent(ActivityLogin.this, MainActivity_Mayores.class);
+                } else if ("adulto".equals(rol)) {
+                    intent = new Intent(ActivityLogin.this, MainActivity_Adultos.class);
+                } else {
+                    intent = new Intent(ActivityLogin.this, ActivityOption.class);
+                }
+
+                startActivity(intent);
+                finish();
+            }
+        }).addOnFailureListener(e -> {
+            Intent intent = new Intent(ActivityLogin.this, ActivityOption.class);
+            startActivity(intent);
+            finish();
+        });
     }
 }

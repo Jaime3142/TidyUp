@@ -4,14 +4,18 @@ import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FragmentGroups extends Fragment {
 
@@ -37,11 +42,29 @@ public class FragmentGroups extends Fragment {
         btnCrearNuevoGrupoCentral = view.findViewById(R.id.btnCrearNuevoGrupoCentral);
         contenedorDinamicoGrupos = view.findViewById(R.id.contenedorDinamicoGrupos);
 
-        btnCrearNuevoGrupoCentral.setOnClickListener(v -> abrirDialogoCrearGrupo());
+        // AHORA LLAMAMOS AL MÉTODO DE VERIFICACIÓN ANTES DE DEJARLE CREAR
+        btnCrearNuevoGrupoCentral.setOnClickListener(v -> verificarYCrearGrupo());
 
         cargarMisGrupos();
 
         return view;
+    }
+
+    // --- NUEVO MÉTODO PARA FRENAR AL USUARIO SI YA TIENE GRUPO ---
+    private void verificarYCrearGrupo() {
+        FirebaseManager.obtenerMisGrupos().addOnSuccessListener(query -> {
+            if (!query.isEmpty()) {
+                // Si el resultado no está vacío, significa que ya estamos en un grupo
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Acción bloqueada")
+                        .setMessage("No puedes pertenecer a más de un grupo. Si deseas crear o entrar a otro, tendrás que salirte de tu grupo actual primero.")
+                        .setPositiveButton("Entendido", null)
+                        .show();
+            } else {
+                // Si estamos libres, le dejamos abrir el diálogo para crear
+                abrirDialogoCrearGrupo();
+            }
+        });
     }
 
     private void cargarMisGrupos() {
@@ -70,38 +93,33 @@ public class FragmentGroups extends Fragment {
                 String idGrupo = grupoDoc.getId();
                 String nombreGrupo = grupoDoc.getString("nombre");
                 String adminId = grupoDoc.getString("admin_id");
-                String codigoAcceso = grupoDoc.getString("codigoAcceso"); // RECUPERAMOS EL CÓDIGO
+                String codigoAcceso = grupoDoc.getString("codigoAcceso");
                 List<String> miembrosUids = (List<String>) grupoDoc.get("miembros");
 
                 btnNombreGrupo.setText(nombreGrupo);
 
-                // Al mantener pulsado el botón del grupo nos saldrán las opciones
+                // Opciones del grupo
                 btnNombreGrupo.setOnLongClickListener(v -> {
                     mostrarOpcionesDeGrupo(idGrupo, nombreGrupo, adminId, codigoAcceso);
                     return true;
                 });
 
-                // Al pulsar el botón de +, nos pedirá un código
+                // Añadir miembro protegido
                 btnAnadirMiembro.setOnClickListener(v -> {
                     String miUid = FirebaseManager.getCurrentUserUid();
                     if (miUid.equals(adminId)) {
-                        // El admin pasa sin código
                         abrirDialogoAnadirMiembro(idGrupo, miembrosUids);
                     } else {
-                        // Los demás deben poner el código
                         verificarCodigoAcceso(codigoAcceso, () -> abrirDialogoAnadirMiembro(idGrupo, miembrosUids));
                     }
                 });
 
-                // Protección para poder eliminar de forma individual
                 cargarIntegrantesEnPantalla(idGrupo, miembrosUids, contenedorMiembros, adminId, codigoAcceso);
-
                 contenedorDinamicoGrupos.addView(vistaGrupo);
             }
         }).addOnFailureListener(e -> Log.e("TIDYUP", "Error al cargar grupos", e));
     }
 
-    // Verificación de código
     private void verificarCodigoAcceso(String codigoReal, Runnable accionPermitida) {
         final EditText inputCodigo = new EditText(getContext());
         inputCodigo.setHint("Escribe el código del grupo");
@@ -117,7 +135,7 @@ public class FragmentGroups extends Fragment {
                 .setPositiveButton("Verificar", (dialog, which) -> {
                     String codigoIntroducido = inputCodigo.getText().toString().trim();
                     if (codigoIntroducido.equals(codigoReal)) {
-                        accionPermitida.run(); // Si acierta, ejecutamos la acción que intentaba hacer
+                        accionPermitida.run();
                     } else {
                         Toast.makeText(getContext(), "Código incorrecto", Toast.LENGTH_SHORT).show();
                     }
@@ -140,7 +158,6 @@ public class FragmentGroups extends Fragment {
                     .setNegativeButton("Cancelar", null)
                     .show();
         } else {
-
             new AlertDialog.Builder(getContext())
                     .setTitle("Opciones del Grupo")
                     .setMessage("¿Qué deseas hacer con '" + nombreGrupo + "'?")
@@ -185,9 +202,7 @@ public class FragmentGroups extends Fragment {
                     tvMiembro.setPadding(20, 10, 0, 10);
 
                     tvMiembro.setOnClickListener(v -> {
-                        if (uid.equals(miUid)) {
-                            mostrarDialogoEliminar(idDelGrupo, uid, nombre, miUid);
-                        } else if (miUid.equals(adminId)) {
+                        if (uid.equals(miUid) || miUid.equals(adminId)) {
                             mostrarDialogoEliminar(idDelGrupo, uid, nombre, miUid);
                         } else {
                             verificarCodigoAcceso(codigoAcceso, () -> mostrarDialogoEliminar(idDelGrupo, uid, nombre, miUid));
@@ -220,113 +235,188 @@ public class FragmentGroups extends Fragment {
                 .create().show();
     }
 
+    // --- AÑADIR MIEMBROS (VERSIÓN LIMPIA CON BUSCADOR Y SOLO USUARIOS LIBRES) ---
     private void abrirDialogoAnadirMiembro(String idDelGrupoAEditar, List<String> miembrosActuales) {
-        FirebaseManager.obtenerTodosLosUsuarios().addOnSuccessListener(querySnapshot -> {
-            List<String> nombresUsuarios = new ArrayList<>();
-            List<String> uidsUsuarios = new ArrayList<>();
 
-            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                String uid = document.getId();
-
-                if (!miembrosActuales.contains(uid)) {
-                    String nombre = document.getString("nombre");
-                    String email = document.getString("email");
-                    nombresUsuarios.add(nombre + " (" + email + ")");
-                    uidsUsuarios.add(uid);
+        FirebaseManager.obtenerUsuariosLibres(new FirebaseManager.UsuariosDisponiblesCallback() {
+            @Override
+            public void onUsuariosCargados(List<Map<String, String>> usuariosDisponibles) {
+                if (usuariosDisponibles.isEmpty()) {
+                    Toast.makeText(getContext(), "No hay usuarios libres disponibles para añadir.", Toast.LENGTH_LONG).show();
+                    return;
                 }
+
+                // 1. Configuramos el Layout Principal
+                LinearLayout layoutPrincipal = new LinearLayout(getContext());
+                layoutPrincipal.setOrientation(LinearLayout.VERTICAL);
+                layoutPrincipal.setPadding(50, 20, 50, 20);
+
+                // 2. Buscador
+                EditText inputBuscador = new EditText(getContext());
+                inputBuscador.setHint("🔍 Buscar por correo...");
+                layoutPrincipal.addView(inputBuscador);
+
+                // 3. Contenedor de la lista
+                ScrollView scrollView = new ScrollView(getContext());
+                LinearLayout contenedorLista = new LinearLayout(getContext());
+                contenedorLista.setOrientation(LinearLayout.VERTICAL);
+                contenedorLista.setPadding(0, 20, 0, 0);
+                scrollView.addView(contenedorLista);
+                layoutPrincipal.addView(scrollView);
+
+                // 4. Llenamos la lista con los datos limpios
+                List<CheckBox> listaDeCasillas = new ArrayList<>();
+
+                for (Map<String, String> user : usuariosDisponibles) {
+                    CheckBox checkBoxUsuario = new CheckBox(getContext());
+                    checkBoxUsuario.setText(user.get("display_text"));
+                    checkBoxUsuario.setTag(user.get("uid"));
+
+                    contenedorLista.addView(checkBoxUsuario);
+                    listaDeCasillas.add(checkBoxUsuario);
+                }
+
+                // 5. Lógica del buscador en tiempo real
+                inputBuscador.addTextChangedListener(new TextWatcher() {
+                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        String filtro = s.toString().toLowerCase();
+                        for (CheckBox checkBox : listaDeCasillas) {
+                            if (checkBox.getText().toString().toLowerCase().contains(filtro)) {
+                                checkBox.setVisibility(View.VISIBLE);
+                            } else {
+                                checkBox.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                    @Override public void afterTextChanged(Editable s) {}
+                });
+
+                // 6. Mostramos el Diálogo
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Añadir nuevos miembros")
+                        .setView(layoutPrincipal)
+                        .setPositiveButton("Añadir", (dialog, which) -> {
+                            List<String> uidsAAnadir = new ArrayList<>();
+                            for (CheckBox checkBox : listaDeCasillas) {
+                                if (checkBox.isChecked()) {
+                                    uidsAAnadir.add((String) checkBox.getTag());
+                                }
+                            }
+
+                            if (!uidsAAnadir.isEmpty()) {
+                                FirebaseManager.anadirMiembrosAGrupo(idDelGrupoAEditar, uidsAAnadir)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(getContext(), "Miembros añadidos con éxito", Toast.LENGTH_SHORT).show();
+                                            cargarMisGrupos();
+                                        });
+                            }
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
 
-            if (nombresUsuarios.isEmpty()) {
-                Toast.makeText(getContext(), "Ya has añadido a todos los usuarios.", Toast.LENGTH_LONG).show();
-                return;
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error al cargar usuarios", Toast.LENGTH_SHORT).show();
             }
-
-            String[] arrayNombres = nombresUsuarios.toArray(new String[0]);
-            boolean[] seleccionados = new boolean[nombresUsuarios.size()];
-            List<String> nuevosUidsSeleccionados = new ArrayList<>();
-
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Añadir nuevos miembros")
-                    .setMultiChoiceItems(arrayNombres, seleccionados, (dialog, which, isChecked) -> {
-                        if (isChecked) {
-                            nuevosUidsSeleccionados.add(uidsUsuarios.get(which));
-                        } else {
-                            nuevosUidsSeleccionados.remove(uidsUsuarios.get(which));
-                        }
-                    })
-                    .setPositiveButton("Añadir", (dialog, which) -> {
-                        if (!nuevosUidsSeleccionados.isEmpty()) {
-                            FirebaseManager.anadirMiembrosAGrupo(idDelGrupoAEditar, nuevosUidsSeleccionados)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(getContext(), "Miembros añadidos con éxito", Toast.LENGTH_SHORT).show();
-                                        cargarMisGrupos();
-                                    });
-                        }
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
         });
     }
 
+    // --- CREAR GRUPO (VERSIÓN LIMPIA CON BUSCADOR Y SOLO USUARIOS LIBRES) ---
     private void abrirDialogoCrearGrupo() {
-        FirebaseManager.obtenerTodosLosUsuarios().addOnSuccessListener(querySnapshot -> {
-            List<String> nombresUsuarios = new ArrayList<>();
-            List<String> uidsUsuarios = new ArrayList<>();
-            String miUid = FirebaseManager.getCurrentUserUid();
+        FirebaseManager.obtenerUsuariosLibres(new FirebaseManager.UsuariosDisponiblesCallback() {
+            @Override
+            public void onUsuariosCargados(List<Map<String, String>> usuariosDisponibles) {
 
-            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                String nombre = document.getString("nombre");
-                String uid = document.getId();
+                // 1. Configuramos el Layout Principal
+                LinearLayout layoutPrincipal = new LinearLayout(getContext());
+                layoutPrincipal.setOrientation(LinearLayout.VERTICAL);
+                layoutPrincipal.setPadding(50, 20, 50, 20);
 
-                if (nombre != null && !uid.equals(miUid)) {
-                    String email = document.getString("email");
-                    nombresUsuarios.add(nombre + " (" + email + ")");
-                    uidsUsuarios.add(uid);
+                // 2. Datos del grupo
+                final EditText inputNombreGrupo = new EditText(getContext());
+                inputNombreGrupo.setHint("Nombre del grupo (ej. Familia)");
+                layoutPrincipal.addView(inputNombreGrupo);
+
+                final EditText inputCodigoAcceso = new EditText(getContext());
+                inputCodigoAcceso.setHint("Código secreto (ej. 1234)");
+                layoutPrincipal.addView(inputCodigoAcceso);
+
+                // 3. Barra de búsqueda
+                EditText inputBuscador = new EditText(getContext());
+                inputBuscador.setHint("🔍 Buscar por correo...");
+                inputBuscador.setPadding(10, 40, 10, 20);
+                layoutPrincipal.addView(inputBuscador);
+
+                // 4. Contenedor de la lista
+                ScrollView scrollView = new ScrollView(getContext());
+                LinearLayout contenedorLista = new LinearLayout(getContext());
+                contenedorLista.setOrientation(LinearLayout.VERTICAL);
+                scrollView.addView(contenedorLista);
+                layoutPrincipal.addView(scrollView);
+
+                // 5. Llenamos la lista con los Checkboxes
+                List<CheckBox> listaDeCasillas = new ArrayList<>();
+
+                for (Map<String, String> user : usuariosDisponibles) {
+                    CheckBox checkBoxUsuario = new CheckBox(getContext());
+                    checkBoxUsuario.setText(user.get("display_text"));
+                    checkBoxUsuario.setTag(user.get("uid"));
+
+                    contenedorLista.addView(checkBoxUsuario);
+                    listaDeCasillas.add(checkBoxUsuario);
                 }
+
+                // 6. Lógica del buscador
+                inputBuscador.addTextChangedListener(new TextWatcher() {
+                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        String filtro = s.toString().toLowerCase();
+                        for (CheckBox checkBox : listaDeCasillas) {
+                            if (checkBox.getText().toString().toLowerCase().contains(filtro)) {
+                                checkBox.setVisibility(View.VISIBLE);
+                            } else {
+                                checkBox.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                    @Override public void afterTextChanged(Editable s) {}
+                });
+
+                // 7. Mostramos el Diálogo
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Crear Nuevo Grupo")
+                        .setView(layoutPrincipal)
+                        .setPositiveButton("Crear", (dialog, which) -> {
+                            String nombreGrupo = inputNombreGrupo.getText().toString().trim();
+                            String codigoAcceso = inputCodigoAcceso.getText().toString().trim();
+
+                            if (nombreGrupo.isEmpty() || codigoAcceso.isEmpty()) {
+                                Toast.makeText(getContext(), "Rellena nombre y código", Toast.LENGTH_LONG).show();
+                            } else {
+                                List<String> uidsSeleccionados = new ArrayList<>();
+                                for (CheckBox checkBox : listaDeCasillas) {
+                                    if (checkBox.isChecked()) {
+                                        uidsSeleccionados.add((String) checkBox.getTag());
+                                    }
+                                }
+
+                                FirebaseManager.crearGrupo(nombreGrupo, codigoAcceso, uidsSeleccionados)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(getContext(), "¡Grupo creado!", Toast.LENGTH_SHORT).show();
+                                            cargarMisGrupos();
+                                        });
+                            }
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
 
-            String[] arrayNombres = nombresUsuarios.toArray(new String[0]);
-            boolean[] seleccionados = new boolean[nombresUsuarios.size()];
-            List<String> uidsSeleccionados = new ArrayList<>();
-
-            final EditText inputNombreGrupo = new EditText(getContext());
-            inputNombreGrupo.setHint("Nombre del grupo (ej. Familia)");
-
-            final EditText inputCodigoAcceso = new EditText(getContext());
-            inputCodigoAcceso.setHint("Código secreto (ej. 1234)");
-
-            LinearLayout layout = new LinearLayout(getContext());
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(50, 20, 50, 20);
-            layout.addView(inputNombreGrupo);
-            layout.addView(inputCodigoAcceso);
-
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Crear Nuevo Grupo")
-                    .setView(layout)
-                    .setMultiChoiceItems(arrayNombres, seleccionados, (dialog, which, isChecked) -> {
-                        if (isChecked) {
-                            uidsSeleccionados.add(uidsUsuarios.get(which));
-                        } else {
-                            uidsSeleccionados.remove(uidsUsuarios.get(which));
-                        }
-                    })
-                    .setPositiveButton("Crear", (dialog, which) -> {
-                        String nombreGrupo = inputNombreGrupo.getText().toString().trim();
-                        String codigoAcceso = inputCodigoAcceso.getText().toString().trim();
-
-                        if (nombreGrupo.isEmpty() || codigoAcceso.isEmpty()) {
-                            Toast.makeText(getContext(), "Rellena nombre y código", Toast.LENGTH_LONG).show();
-                        } else {
-                            FirebaseManager.crearGrupo(nombreGrupo, codigoAcceso, uidsSeleccionados)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(getContext(), "¡Grupo creado!", Toast.LENGTH_SHORT).show();
-                                        cargarMisGrupos();
-                                    });
-                        }
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error al cargar usuarios", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

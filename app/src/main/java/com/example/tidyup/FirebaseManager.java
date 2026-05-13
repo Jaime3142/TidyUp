@@ -30,7 +30,6 @@ import java.util.Map;
 // Desde aqui se gestionan los usuarios, grupos, tareas y notificaciones de la app.
 public class FirebaseManager {
 
-    // Conexion a la base de datos y al sistema de login de Firebase
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();
 

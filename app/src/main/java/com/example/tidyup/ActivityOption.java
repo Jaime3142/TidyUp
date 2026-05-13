@@ -1,6 +1,5 @@
 package com.example.tidyup;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,28 +7,43 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class ActivityOption extends AppCompatActivity {
 
-    private Button botonAdultos, botonMayores, accesoAdolescentes;
-    private TextView tvCerrarSesion;
-
+    private Button btnAdolescentes, btnAdultos, btnMayores;
+    private TextView tvBienvenida, tvCerrarSesion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_option);
 
-        accesoAdolescentes = findViewById(R.id.button);
-        botonAdultos = findViewById(R.id.button2);
-        botonMayores = findViewById(R.id.button3);
+        btnAdolescentes = findViewById(R.id.button);
+        btnAdultos = findViewById(R.id.button2);
+        btnMayores = findViewById(R.id.button3);
+        tvBienvenida = findViewById(R.id.tvBienvenidaUsuario);
         tvCerrarSesion = findViewById(R.id.tvCerrarSesion);
 
-        accesoAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", MainActivity_Adolescentes.class));
-        botonAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", MainActivity_Adultos.class));
-        botonMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", MainActivity_Mayores.class));
+        cargarNombreUsuario();
 
+        btnAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", MainActivity_Adolescentes.class));
+        btnAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", MainActivity_Adultos.class));
+        btnMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", MainActivity_Mayores.class));
 
-        TextView tvBienvenida = findViewById(R.id.tvBienvenidaUsuario);
+        tvCerrarSesion.setOnClickListener(v -> {
+            FirebaseManager.cerrarSesion();
+            Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(ActivityOption.this, ActivityLogin.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+    // --- MÉTODOS AUXILIARES ---
+    private void cargarNombreUsuario() {
         String miUid = FirebaseManager.getCurrentUserUid();
 
         if (!miUid.isEmpty()) {
@@ -42,16 +56,6 @@ public class ActivityOption extends AppCompatActivity {
                 }
             }).addOnFailureListener(e -> Log.e("TIDYUP", "Error al cargar el nombre de usuario", e));
         }
-
-        tvCerrarSesion.setOnClickListener(v -> {
-            FirebaseManager.cerrarSesion();
-            Intent intent = new Intent(ActivityOption.this, ActivityLogin.class);
-            startActivity(intent);
-
-            finish();
-
-            Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
-        });
     }
 
     private void actualizarRolYNavegar(String nuevoRol, Class<?> claseDestino) {
@@ -62,7 +66,7 @@ public class ActivityOption extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     })
-                    .addOnFailureListener(e -> Toast.makeText(ActivityOption.this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(ActivityOption.this, "Error al actualizar rol: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         } else {
             Toast.makeText(this, "Error: Sesión no válida", Toast.LENGTH_SHORT).show();
         }

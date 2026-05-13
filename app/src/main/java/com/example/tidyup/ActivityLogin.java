@@ -1,38 +1,33 @@
 package com.example.tidyup;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ActivityLogin extends AppCompatActivity {
+
     private FirebaseAuth mAuth;
     private EditText etEmail, etPassword;
-    private Button btnLogin;
-    private Button btnSignUp;
+    private Button btnLogin, btnSignUp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Pedir permiso de notificaciones en Android 13+
+        // Permiso de notificaciones para Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
             }
         }
 
@@ -43,38 +38,34 @@ public class ActivityLogin extends AppCompatActivity {
         btnLogin = findViewById(R.id.buttonLoginWith);
         btnSignUp = findViewById(R.id.buttonSignUp);
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = etEmail.getText().toString().trim();
-                String pass = etPassword.getText().toString().trim();
+        btnLogin.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
+            String pass = etPassword.getText().toString().trim();
 
-                if (email.isEmpty()) {
-                    etEmail.setError("Introduce tu correo");
-                    return;
-                }
-                if (pass.isEmpty()) {
-                    etPassword.setError("Introduce la contraseña");
-                    return;
-                }
-
-                // Inicio de sesión en Firebase
-                loginUsuario(email, pass);
+            if (email.isEmpty()) {
+                etEmail.setError("Introduce tu correo");
+                return;
             }
+
+            if (pass.isEmpty()) {
+                etPassword.setError("Introduce la contraseña");
+                return;
+            }
+
+            loginUsuario(email, pass);
         });
 
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ActivityLogin.this, ActivitySignUp.class);
-                startActivity(intent);
-            }
+        btnSignUp.setOnClickListener(v -> {
+            Intent intent = new Intent(ActivityLogin.this, ActivitySignUp.class);
+            startActivity(intent);
         });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        // Redirección automática si la sesión ya está iniciada
         if (!FirebaseManager.getCurrentUserUid().isEmpty()) {
             redireccionarSegunRol();
         }
@@ -82,24 +73,16 @@ public class ActivityLogin extends AppCompatActivity {
 
     private void loginUsuario(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Inicio de sesión correcto
-                            Toast.makeText(ActivityLogin.this, "Sesión iniciada", Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(ActivityLogin.this, "Sesión iniciada", Toast.LENGTH_SHORT).show();
+                        redireccionarSegunRol();
+                    } else {
+                        String errorMsg = (task.getException() != null)
+                                ? "Datos incorrectos o usuario no registrado"
+                                : "Error de autenticación";
 
-                            // ¡AQUÍ ESTABA EL CAMBIO! Ahora usamos el semáforo en lugar de irAHome()
-                            redireccionarSegunRol();
-
-                        } else {
-                            // Usuario no registrado o error
-                            String errorMsg = "Error de autenticación";
-                            if (task.getException() != null) {
-                                errorMsg = "Datos incorrectos o usuario no registrado";
-                            }
-                            Toast.makeText(ActivityLogin.this, errorMsg, Toast.LENGTH_LONG).show();
-                        }
+                        Toast.makeText(ActivityLogin.this, errorMsg, Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -112,7 +95,7 @@ public class ActivityLogin extends AppCompatActivity {
                 String rol = doc.getString("rol");
                 Intent intent;
 
-                // Redirigimos según el rol exacto
+                // Enrutamiento según el rol del usuario
                 if ("adolescente".equals(rol)) {
                     intent = new Intent(ActivityLogin.this, MainActivity_Adolescentes.class);
                 } else if ("mayor".equals(rol)) {
@@ -127,6 +110,7 @@ public class ActivityLogin extends AppCompatActivity {
                 finish();
             }
         }).addOnFailureListener(e -> {
+            // Fallback de seguridad en caso de fallo de red
             Intent intent = new Intent(ActivityLogin.this, ActivityOption.class);
             startActivity(intent);
             finish();

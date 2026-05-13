@@ -7,6 +7,7 @@
     android:background="@drawable/background"
     android:padding="24dp">
 
+    <!-- Título principal (Donde irá el nombre del usuario) -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -19,6 +20,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Botón de Ajustes (Engranaje) -->
+    <ImageView
+        android:id="@+id/btnSettings"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/settings"
+        app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvTitle"
+        app:tint="#FFFFFF" />
+
+    <!-- Tarjeta blanca con el calendario -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardCalendar"
         android:layout_width="match_parent"
@@ -38,6 +51,7 @@
             android:weekDayTextAppearance="@style/TextAppearance.AppCompat.Medium"/>
     </androidx.cardview.widget.CardView>
 
+    <!-- Texto de la fecha seleccionada -->
     <TextView
         android:id="@+id/tvDateSelected"
         android:layout_width="wrap_content"
@@ -50,7 +64,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardCalendar" />
 
-    <!-- Sección de tareas actualizada con ScrollView y LinearLayout -->
+    <!-- Contenedor con Scroll para las tareas -->
     <ScrollView
         android:id="@+id/scrollViewTareas"
         android:layout_width="match_parent"

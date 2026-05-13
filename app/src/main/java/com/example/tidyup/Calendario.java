@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CalendarView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-// Nuevas importaciones de Firebase
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -24,7 +24,8 @@ public class Calendario extends Fragment {
     private CalendarView calendarView;
     private LinearLayout contenedorTareas;
     private TextView tvDateSelected;
-    private TextView tvTitle; // Añadido para el título principal
+    private TextView tvTitle;
+    private ImageView btnSettings;
     private FirebaseManager manager = new FirebaseManager();
 
     public Calendario() {
@@ -37,37 +38,58 @@ public class Calendario extends Fragment {
         View rootView = null;
 
         try {
+            // Carga el diseño de calendario.xml
             rootView = inflater.inflate(R.layout.calendario, container, false);
 
-            // 1. Enlazamos las vistas del XML usando rootView
+            // 1. Enlazamos las vistas del XML
             calendarView = rootView.findViewById(R.id.calendarView);
             contenedorTareas = rootView.findViewById(R.id.contenedorTareasCalendario);
             tvDateSelected = rootView.findViewById(R.id.tvDateSelected);
-            tvTitle = rootView.findViewById(R.id.tvTitle); // Enlazamos el título
+            tvTitle = rootView.findViewById(R.id.tvTitle);
+            btnSettings = rootView.findViewById(R.id.btnSettings);
 
-            // --- NUEVO: PONER EL NOMBRE DEL USUARIO EN EL TÍTULO ---
+            // 2. Cambiamos el título por el nombre del usuario desde Firebase
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser != null && tvTitle != null) {
                 String email = currentUser.getEmail();
                 if (email != null) {
-                    // Cortamos el correo para mostrar solo el nombre (ej: example3@gmail.com -> example3)
+                    // Extrae el nombre antes del @
                     String username = email.split("@")[0];
                     tvTitle.setText(username);
                 }
             }
-          
 
-            // 2. Cargamos las tareas inicialmente
+            // 3. Evento para abrir tu pantalla de ajustes (FragmentConfiguration)
+            if (btnSettings != null) {
+                btnSettings.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            if (getParentFragmentManager() != null) {
+                                getParentFragmentManager().beginTransaction()
+                                        .replace(R.id.contenedor_fragments, new FragmentConfiguration())
+                                        .addToBackStack(null) // Permite volver atrás con la flecha del móvil
+                                        .commit();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(getContext(), "Error al abrir los ajustes", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
+            // 4. Cargamos las tareas inicialmente
             cargarTareas(inflater);
 
-            // Ponemos la fecha de hoy por defecto en el texto
+            // 5. Ponemos la fecha de hoy por defecto en el texto
             Calendar cal = Calendar.getInstance();
             String fechaHoy = cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR);
             if (tvDateSelected != null) {
                 tvDateSelected.setText("Tareas del día (" + fechaHoy + ")");
             }
 
-            // 3. Configuramos qué pasa cuando el usuario toca un día diferente
+            // 6. Configuramos qué pasa cuando el usuario toca un día diferente
             if (calendarView != null) {
                 calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                     @Override
@@ -80,10 +102,8 @@ public class Calendario extends Fragment {
                                 tvDateSelected.setText("Tareas del día (" + fechaSeleccionada + ")");
                             }
 
-                            // Limpiamos el contenedor
+                            // Limpiamos el contenedor y cargamos de nuevo
                             contenedorTareas.removeAllViews();
-
-                            // Cargamos las tareas de nuevo
                             cargarTareas(inflater);
 
                         } catch (Exception e) {

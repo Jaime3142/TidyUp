@@ -20,7 +20,7 @@
     <string name="incorrect_password">Nombre de usuario o contraseña incorrecto</string>
     <string name="username">Nombre de usuario</string>
     <string name="outlook">Correo electrónico</string>
-    <string name="outlook2">Confirmar correo electrónico</string>
+    <string name="outlook2">Confirmar Contraseña</string>
     <string name="login">Iniciar sesión</string>
     <string name="sign_up">Crear cuenta</string>
     <string name="login_with">Iniciar sesión con</string>
@@ -33,7 +33,7 @@
     <string name="description_3">Diseño minimalista que solo dispone de las funciones de calendario y recordatorios </string>
     <string name="configuration"><u>Configuración</u></string>
     <string name="privacy">Políticas de privacidad</string>
-    <string name="theme">Cambiar tema</string>
+    <string name="logout">Cerrar sesión</string>
     <string name="help">Ayuda y asistencia</string>
     <string name="consent">Gestionar consentimiento</string>
     <string name="service">Condiciones de servicio</string>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -33,9 +32,9 @@
         android:textColor="#000000"
         android:textColorHint="#757575"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/labelTarea"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/labelTarea" />
 
     <!-- USUARIO -->
     <TextView
@@ -56,9 +55,9 @@
         android:layout_height="55dp"
         android:layout_marginTop="4dp"
         android:background="@drawable/fondo_input_blanco"
-        app:layout_constraintTop_toBottomOf="@id/labelUsuario"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/labelUsuario">
 
         <Spinner
             android:id="@+id/nUsuario"
@@ -94,9 +93,9 @@
         android:textColor="#000000"
         android:textColorHint="#757575"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/labelTarea2"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/labelTarea2" />
 
     <!-- FECHA -->
     <TextView
@@ -124,9 +123,9 @@
         android:textColor="#000000"
         android:textColorHint="#757575"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/labelFecha"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/labelFecha" />
 
     <!-- DIFICULTAD -->
     <TextView
@@ -147,9 +146,9 @@
         android:layout_height="55dp"
         android:layout_marginTop="4dp"
         android:background="@drawable/fondo_input_blanco"
-        app:layout_constraintTop_toBottomOf="@id/labelFecha2"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/labelFecha2">
 
         <Spinner
             android:id="@+id/spinnerDificultad"
@@ -171,8 +170,8 @@
         android:textColor="#000000"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/cPuntos"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/cPuntos" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

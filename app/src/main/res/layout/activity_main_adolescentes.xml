@@ -118,7 +118,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContiner"
+        android:id="@+id/contenedor_fragments"
         android:name="com.example.tidyup.Fragment_vacio"
         android:layout_width="0dp"
         android:layout_height="0dp"

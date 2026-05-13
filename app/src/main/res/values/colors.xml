@@ -1,9 +1,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="rectangulo">#86C5E0</color>
+    <color name="rectangulo">#3A85A6</color>
     <color name="botbar">#559955</color>
-    <color name="fondo">#FAF3E0</color>
+    <color name="fondo">#F7E4AA</color>
     <color name="tarjetas">#F3EBD0</color>
     <color name="yellow">#E8DD63</color>
     <color name="purple_dark">#434662</color>

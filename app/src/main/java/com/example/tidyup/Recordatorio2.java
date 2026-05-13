@@ -25,7 +25,7 @@ public class Recordatorio2 extends Fragment {
     public static ArrayList<String> fechas = new ArrayList<>();
 
     public Recordatorio2() {
-        // Constructor vacío obligatorio
+
     }
 
     public static Recordatorio2 newInstance(String param1, String param2) {

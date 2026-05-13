@@ -1,5 +1,6 @@
 package com.example.tidyup;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -14,6 +15,8 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.Calendar;
 
 public class UltRecordatorio extends Fragment {
 
@@ -58,10 +61,10 @@ public class UltRecordatorio extends Fragment {
 
         // Referencias a los views
         ImageButton btnAtras = root.findViewById(R.id.imageButton6);
-        etNombre = root.findViewById(R.id.nombre);
-        etFecha = root.findViewById(R.id.fecha);
+        etNombre      = root.findViewById(R.id.nombre);
+        etFecha       = root.findViewById(R.id.fecha);
         etDescripcion = root.findViewById(R.id.descripcion);
-        btnCrear = root.findViewById(R.id.button2);
+        btnCrear      = root.findViewById(R.id.button2);
 
         // Validación
         if (etNombre == null || etFecha == null || etDescripcion == null || btnCrear == null || btnAtras == null) {
@@ -69,10 +72,18 @@ public class UltRecordatorio extends Fragment {
             return root;
         }
 
-        // Limpiar los EditText al abrir el fragment
+
         etNombre.setText("");
         etFecha.setText("");
         etDescripcion.setText("");
+
+
+
+        etFecha.setFocusable(false);
+        etFecha.setClickable(true);
+
+        etFecha.setOnClickListener(v -> mostrarDatePicker());
+
 
         // Botón atrás
         btnAtras.setOnClickListener(v -> {
@@ -81,11 +92,11 @@ public class UltRecordatorio extends Fragment {
             }
         });
 
-        // Botón button2 tarea
+        // Botón crear tarea
         btnCrear.setOnClickListener(v -> {
 
-            String tarea = etNombre.getText().toString().trim();
-            String fecha = etFecha.getText().toString().trim();
+            String tarea       = etNombre.getText().toString().trim();
+            String fecha       = etFecha.getText().toString().trim();
             String descripcion = etDescripcion.getText().toString().trim();
 
             if (tarea.isEmpty() || fecha.isEmpty() || descripcion.isEmpty()) {
@@ -102,10 +113,9 @@ public class UltRecordatorio extends Fragment {
                     etFecha.setText("");
                     etDescripcion.setText("");
 
-                    // Mostrar Toast
                     Toast.makeText(getContext(), "Tarea creada", Toast.LENGTH_SHORT).show();
 
-                    // Navegar a Recordatorio2
+
                     reemplazarFragment(new Recordatorio2());
 
                 } else {
@@ -119,12 +129,36 @@ public class UltRecordatorio extends Fragment {
         return root;
     }
 
+
+    private void mostrarDatePicker() {
+        if (getContext() == null) return;
+
+        // Abrimos el picker en la fecha de hoy por defecto
+        Calendar hoy = Calendar.getInstance();
+        int anio = hoy.get(Calendar.YEAR);
+        int mes  = hoy.get(Calendar.MONTH);      // 0-based
+        int dia  = hoy.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog dialog = new DatePickerDialog(
+                getContext(),
+                (datePicker, anioSel, mesSel, diaSel) -> {
+
+                    String fechaFormateada = diaSel + "/" + (mesSel + 1) + "/" + anioSel;
+                    etFecha.setText(fechaFormateada);
+                },
+                anio, mes, dia
+        );
+
+        dialog.show();
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     // Método para reemplazar fragment
     private void reemplazarFragment(Fragment fragment) {
         FragmentManager fragmentManager = getParentFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragmentContainerView, fragment);
-        fragmentTransaction.addToBackStack(null); // permite volver atrás
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 }

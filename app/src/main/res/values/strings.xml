@@ -33,7 +33,7 @@
     <string name="description_3">Diseño minimalista que solo dispone de las funciones de calendario y recordatorios </string>
     <string name="configuration"><u>Configuración</u></string>
     <string name="privacy">Políticas de privacidad</string>
-    <string name="theme">Cambiar tema</string>
+    <string name="logout">Cerrar sesión</string>
     <string name="help">Ayuda y asistencia</string>
     <string name="consent">Gestionar consentimiento</string>
     <string name="service">Condiciones de servicio</string>

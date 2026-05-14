@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ActivityOption extends AppCompatActivity {
 
     private Button btnAdolescentes, btnAdultos, btnMayores;
-    private TextView tvBienvenida, tvCerrarSesion;
+    private TextView tvBienvenida;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,26 +23,17 @@ public class ActivityOption extends AppCompatActivity {
         btnAdultos = findViewById(R.id.button2);
         btnMayores = findViewById(R.id.button3);
         tvBienvenida = findViewById(R.id.tvBienvenidaUsuario);
-        tvCerrarSesion = findViewById(R.id.tvCerrarSesion);
 
         cargarNombreUsuario();
 
+        //Lógica de selección de roles
         btnAdolescentes.setOnClickListener(v -> actualizarRolYNavegar("adolescente", MainActivity_Adolescentes.class));
         btnAdultos.setOnClickListener(v -> actualizarRolYNavegar("adulto", MainActivity_Adultos.class));
         btnMayores.setOnClickListener(v -> actualizarRolYNavegar("mayor", MainActivity_Mayores.class));
-
-        tvCerrarSesion.setOnClickListener(v -> {
-            FirebaseManager.cerrarSesion();
-            Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(ActivityOption.this, ActivityLogin.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
     }
 
     // --- MÉTODOS AUXILIARES ---
+
     private void cargarNombreUsuario() {
         String miUid = FirebaseManager.getCurrentUserUid();
 

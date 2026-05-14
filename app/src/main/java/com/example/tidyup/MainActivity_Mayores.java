@@ -20,16 +20,6 @@ public class MainActivity_Mayores extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_mayores);
 
-        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                Intent intent = new Intent(MainActivity_Mayores.this, ActivityOption.class);
-                startActivity(intent);
-
-                finish();
-            }
-        });
-
         fg = findViewById(R.id.fragmentContainerView);
 
 
